@@ -884,8 +884,10 @@ state.end=Math.min(state.end===undefined?SNAPSHOTS.length-1:state.end,SNAPSHOTS.
 if(state.end<1)state.end=SNAPSHOTS.length-1;
 state.base=Math.min(state.base===undefined?state.end-1:state.base,state.end-1);
 if(state.base<0)state.base=0;
+state.single=!!state.single&&state.end-state.base===1;
 function save(){try{localStorage.setItem("ledger-state",JSON.stringify(
-  {tab:state.tab,mode:state.mode,active:state.active,base:state.base,end:state.end,hz:state.hz}))}catch(e){}}
+  {tab:state.tab,mode:state.mode,active:state.active,base:state.base,end:state.end,
+   single:state.single,hz:state.hz}))}catch(e){}}
 
 // --- cards ---
 const cardsEl=document.getElementById("cards");
@@ -937,8 +939,14 @@ document.addEventListener("click",e=>{if(!calPop.hidden&&!calPop.contains(e.targ
 document.addEventListener("keydown",e=>{if(e.key==="Escape")closeCal();});
 function pickDay(idx){
   if(pendingStart===null){pendingStart=idx;renderCal();return;}
-  if(idx===pendingStart){pendingStart=null;renderCal();return;}
+  if(idx===pendingStart){
+    // Same day twice = view just that day (gains since the previous snapshot).
+    if(idx===0){pendingStart=null;renderCal();return;} // nothing earlier to diff against
+    state.base=idx-1;state.end=idx;state.single=true;
+    pendingStart=null;save();closeCal();render();return;
+  }
   state.base=Math.min(pendingStart,idx);state.end=Math.max(pendingStart,idx);
+  state.single=false;
   pendingStart=null;save();closeCal();render();
 }
 function preset(kind){
@@ -950,13 +958,15 @@ function preset(kind){
     SNAPSHOTS.forEach((s,i)=>{if(i<last&&s.date<=cutoff)b=i;});
     state.base=b;state.end=last;
   }
+  state.single=false;
   save();closeCal();render();
 }
 function renderCal(){
   const y=calView.getFullYear(),m=calView.getMonth();
   const first=(new Date(y,m,1).getDay()+6)%7, days=new Date(y,m+1,0).getDate();
-  const bd=SNAPSHOTS[pendingStart===null?state.base:pendingStart].date,
-        ed=pendingStart===null?SNAPSHOTS[state.end].date:bd;
+  const bd=pendingStart!==null?SNAPSHOTS[pendingStart].date:
+        state.single?SNAPSHOTS[state.end].date:SNAPSHOTS[state.base].date,
+        ed=pendingStart!==null?bd:SNAPSHOTS[state.end].date;
   let g=["Mo","Tu","We","Th","Fr","Sa","Su"].map(d=>`<span class="dow">${d}</span>`).join("");
   for(let i=0;i<first;i++)g+=`<span class="d"></span>`;
   for(let d=1;d<=days;d++){
@@ -980,8 +990,8 @@ function renderCal(){
         <b>${MONTHS[m]} ${y}</b><button data-nav="1">›</button></div>
       <div class="grid">${g}</div>
       <div class="hint">${pendingStart===null?
-        "Highlighted days hold snapshots — click one to start a range.":
-        "Now click the end date (same day cancels)."}</div>
+        "Highlighted days hold snapshots — click one to start.":
+        "Click an end date for a range, or the same day again to view just that day."}</div>
     </div>`;
   calPop.querySelectorAll("[data-nav]").forEach(b=>b.onclick=e=>{
     e.stopPropagation();calView=new Date(y,m+ +b.dataset.nav,1);renderCal();});
@@ -1215,7 +1225,9 @@ function render(){
   zeroEl.querySelectorAll("button").forEach(b=>b.classList.toggle("on",b.dataset.z===(state.hz==="all"?"all":"hide")));
   rangeWrap.hidden=state.tab!=="progress"||SNAPSHOTS.length<2;
   if(!rangeWrap.hidden)
-    rangeBtn.innerHTML=`📅 ${SNAPSHOTS[state.base].label} → ${SNAPSHOTS[state.end].label}`+
+    rangeBtn.innerHTML=state.single?
+      `📅 ${SNAPSHOTS[state.end].label} <span class="caret">— that day&nbsp;</span><span class="caret">▼</span>`:
+      `📅 ${SNAPSHOTS[state.base].label} → ${SNAPSHOTS[state.end].label}`+
       `${state.end===SNAPSHOTS.length-1?" (latest)":""}<span class="caret">▼</span>`;
   modeEl.querySelectorAll("button").forEach(b=>b.classList.toggle("on",b.dataset.mode===state.mode));
   renderTable();
