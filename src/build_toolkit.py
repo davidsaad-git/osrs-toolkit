@@ -8,10 +8,11 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 OUT = os.path.join(HERE, "..", "OSRS Toolkit.html")
 
 TOOLS = [
-    ("ledger",  "Ledger.html",       "⚔️", "Ledger"),
-    ("oracle",  "Drop Oracle.html",  "🎲", "Drop Oracle"),
-    ("upgrade", "Upgrade Path.html", "🗡️", "Upgrades"),
-    ("toa",     "ToA Notes.html",    "🏺", "ToA Notes"),
+    # (key, source file, icon, tab label, dimmed nav tab)
+    ("ledger",  "Ledger.html",       "⚔️", "Ledger",      False),
+    ("oracle",  "Drop Oracle.html",  "🎲", "Drop Oracle", True),
+    ("upgrade", "Upgrade Path.html", "🗡️", "Upgrades",    True),
+    ("toa",     "ToA Notes.html",    "🏺", "ToA Notes",   True),
 ]
 
 def prefix_css(css, pfx):
@@ -82,18 +83,21 @@ nav button{font:inherit;font-size:13.5px;font-weight:500;color:var(--muted);
 nav button:hover{color:var(--ink)}
 nav button.on{color:var(--gold);border-bottom-color:var(--gold)}
 nav button:focus-visible{outline:2px solid var(--gold);outline-offset:-2px}
+nav button.dim{opacity:.35;filter:grayscale(1);cursor:not-allowed}
+nav button.dim:hover{color:var(--muted)}
 """
 
 def main():
     parts_css, parts_html, parts_js, tabs = [], [], [], []
-    for key, fname, ico, label in TOOLS:
+    for key, fname, ico, label, dim in TOOLS:
         style, script, body = extract(os.path.join(HERE, fname))
         parts_css.append(f"/* ---- {key} ---- */\n" + prefix_css(style, f"#t-{key}"))
         parts_html.append(f'<div id="t-{key}" class="tool" hidden>\n{body}\n</div>')
         if script:
             parts_js.append(f"/* ---- {key} ---- */\n(function(){{\n{script}\n}})();")
-        tabs.append(f'<button data-t="{key}">{ico} {label}</button>')
+        tabs.append(f'<button data-t="{key}"{" class=\"dim\" disabled" if dim else ""}>{ico} {label}</button>')
 
+    dis_json = "{" + ",".join(f'"{k}":1' for k, _, _, _, d in TOOLS if d) + "}"
     doc = f"""<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -112,7 +116,9 @@ def main():
 <script>
 (function(){{
   var tabs=document.querySelectorAll("nav button"),cur="ledger";
+  var dis={dis_json};
   try{{cur=localStorage.getItem("toolkit-tab")||cur}}catch(e){{}}
+  if(dis[cur])cur="ledger";
   function show(k){{
     cur=k;
     tabs.forEach(function(b){{b.classList.toggle("on",b.dataset.t===k)}});
