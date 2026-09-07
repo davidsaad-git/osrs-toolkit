@@ -1,5 +1,7 @@
 @echo off
 title Refresh OSRS Ledger
+cd /d "%~dp0"
+git pull --rebase >nul 2>nul
 cd /d "%~dp0src"
 echo Refreshing hiscores + collection logs...
 echo.
