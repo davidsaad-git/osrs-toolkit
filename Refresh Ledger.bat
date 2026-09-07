@@ -1,16 +1,46 @@
 @echo off
-title Refresh OSRS Ledger
+setlocal
+title Refresh Quit Smoking Ledger
 cd /d "%~dp0"
-git pull --rebase >nul 2>nul
-cd /d "%~dp0src"
-echo Refreshing hiscores + collection logs...
+
+rem Pick an interpreter once, so a script failure can't cause a second full run.
+set "PY="
+python --version >nul 2>nul && set "PY=python"
+if not defined PY py --version >nul 2>nul && set "PY=py"
+if not defined PY (
+  echo Python was not found. Install it from python.org, then run this again.
+  echo.
+  pause
+  exit /b 1
+)
+
+echo Refreshing hiscores, collection logs, quests and achievements...
 echo.
-python refresh_data.py 2>nul || py refresh_data.py
+%PY% "%~dp0src\refresh_data.py"
+if errorlevel 1 (
+  echo.
+  echo Refresh failed - see the messages above. Your existing data was left alone.
+  echo Trying again usually works if it was a network problem.
+  echo.
+  pause
+  exit /b 1
+)
+
 echo.
-cd /d "%~dp0"
 git add -A >nul 2>nul
-git commit -m "Refresh snapshot" >nul 2>nul && (
-  git push >nul 2>nul && echo Website updated: https://davidsaad-git.github.io/osrs-toolkit/ || echo Local files updated. Push to GitHub failed - check your internet.
-) || echo Local files updated. No data changes to publish.
-echo Reload OSRS Toolkit.html or the website to see the new snapshot.
+git diff --cached --quiet >nul 2>nul
+if errorlevel 1 (
+  git commit -m "Refresh snapshot" >nul 2>nul
+  git pull --rebase >nul 2>nul
+  git push >nul 2>nul
+  if errorlevel 1 (
+    echo Local files updated. Publishing to the website failed - check your internet.
+  ) else (
+    echo Website updated: https://davidsaad-git.github.io/osrs-toolkit/
+  )
+) else (
+  echo Local files updated. No data changes to publish.
+)
+echo Reload the toolkit in your browser to see the new snapshot.
+echo.
 pause

@@ -2,17 +2,35 @@
 # snapshot to snapshots.json (replacing an existing snapshot from the same day),
 # then rebuilds ../OSRS Toolkit.html.
 # Run:  python refresh_data.py
-import io, json, os, datetime, urllib.request, urllib.parse
+import io, json, os, sys, time, datetime, urllib.request, urllib.error, urllib.parse
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 SNAP = os.path.join(HERE, "snapshots.json")
 PLAYERS = ["Papa Davo", "GIM DogSauce", "GIM ArchNem"]
 UA = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) PapaDavo-toolkit"}
 
-def get_json(url):
-    req = urllib.request.Request(url, headers=UA)
-    with urllib.request.urlopen(req, timeout=30) as r:
-        return json.loads(r.read().decode("utf-8"))
+def get_json(url, tries=4):
+    """These APIs intermittently 403 or time out; retry before giving up."""
+    delay = 1.5
+    for attempt in range(1, tries + 1):
+        try:
+            req = urllib.request.Request(url, headers=UA)
+            with urllib.request.urlopen(req, timeout=20) as r:
+                return json.loads(r.read().decode("utf-8"))
+        except urllib.error.HTTPError as e:
+            if e.code == 404:      # genuinely absent (e.g. not on RuneProfile) — don't retry
+                raise
+            if attempt == tries:
+                raise
+            print(f"      retry {attempt}/{tries - 1} after HTTP {e.code}")
+            time.sleep(delay)
+            delay *= 2
+        except Exception as e:
+            if attempt == tries:
+                raise
+            print(f"      retry {attempt}/{tries - 1} after {type(e).__name__}: {e}")
+            time.sleep(delay)
+            delay *= 2
 
 def fetch_player(name):
     q = urllib.parse.quote(name)
@@ -77,12 +95,16 @@ def fetch_player(name):
     return p
 
 def fetch_categories():
-    """Category metadata: {group: {slug: total_item_count}}, in Temple's display order."""
-    cats = get_json("https://templeosrs.com/api/collection-log/categories.php")
-    meta = {g: {slug: len(ids) for slug, ids in slugs.items()} for g, slugs in cats.items()}
-    io.open(os.path.join(HERE, "clog_categories.json"), "w", encoding="utf-8").write(
-        json.dumps(meta, separators=(",", ":")))
-    print(f"  categories: {sum(len(v) for v in meta.values())} across {len(meta)} groups")
+    """Category metadata: {group: {slug: total_item_count}}, in Temple's display order.
+    Rarely changes, so a failure just keeps the copy already on disk."""
+    try:
+        cats = get_json("https://templeosrs.com/api/collection-log/categories.php")
+        meta = {g: {slug: len(ids) for slug, ids in slugs.items()} for g, slugs in cats.items()}
+        io.open(os.path.join(HERE, "clog_categories.json"), "w", encoding="utf-8").write(
+            json.dumps(meta, separators=(",", ":")))
+        print(f"  categories: {sum(len(v) for v in meta.values())} across {len(meta)} groups")
+    except Exception as e:
+        print(f"  categories: fetch failed ({type(e).__name__}) - keeping existing list")
 
 def pack_quests(players):
     """Quest names/types/points live once in quests_meta.json (append-only so old
@@ -103,7 +125,9 @@ def pack_quests(players):
         q = p.get("quests")
         if not q:
             continue
-        raw = q.pop("_raw")
+        raw = q.pop("_raw", None)
+        if raw is None:
+            continue          # carried forward from a previous snapshot: already packed
         q["state"] = "".join(str(raw.get(m["n"], [0])[0]) for m in meta)
     if meta:
         print(f"  quests: {len(meta)} known quests/miniquests")
@@ -117,9 +141,23 @@ def main():
         "label": today.strftime("%#d %b %Y") if os.name == "nt" else today.strftime("%-d %b %Y"),
         "players": {},
     }
+    prev = snaps[-1]["players"] if snaps else {}
+    stale = []
     for name in PLAYERS:
-        snap["players"][name] = fetch_player(name)
+        try:
+            snap["players"][name] = fetch_player(name)
+        except Exception as e:
+            # Never write a snapshot with a player missing - the page expects all of
+            # them. Carry the last known data forward and say so.
+            if name not in prev:
+                print(f"  {name}: FAILED ({type(e).__name__}) and no previous data - aborting")
+                sys.exit(1)
+            print(f"  {name}: FAILED ({type(e).__name__}) - carrying previous data forward")
+            snap["players"][name] = json.loads(json.dumps(prev[name]))
+            stale.append(name)
     pack_quests(snap["players"])
+    if stale:
+        print(f"  NOTE: {', '.join(stale)} could not be reached; their numbers are unchanged.")
     if snaps and snaps[-1]["date"] == snap["date"]:
         print("replacing existing snapshot for", snap["date"])
         snaps[-1] = snap
