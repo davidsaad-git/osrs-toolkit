@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Drop Oracle</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+:root{
+  --ground:#16120d; --panel:#211b13; --panel2:#2a2318; --panel3:#332a1c;
+  --border:#4d3d24; --border-soft:#3a2f1d;
+  --ink:#e9dcbe; --muted:#a08c66; --faint:#6f6047;
+  --gold:#f5c235; --green:#9ad24b; --red:#e0674f;
+  --display:'Cinzel',Georgia,serif;
+  --sans:'IBM Plex Sans',system-ui,sans-serif;
+  --mono:'IBM Plex Mono',Consolas,monospace;
+}
+*{box-sizing:border-box}
+body{background:var(--ground);color:var(--ink);font-family:var(--sans);margin:0;
+  font-size:14px;line-height:1.5}
+.wrap{max-width:880px;margin:0 auto;padding:28px 20px 64px}
+header{border-bottom:2px solid var(--border);padding-bottom:14px;margin-bottom:20px;
+  display:flex;align-items:baseline;justify-content:space-between;flex-wrap:wrap;gap:4px 16px}
+h1{font-family:var(--display);font-weight:700;font-size:26px;margin:0;color:var(--gold);
+  letter-spacing:.02em}
+.tagline{font-family:var(--mono);font-size:12px;color:var(--muted)}
+
+.grid{display:grid;grid-template-columns:minmax(260px,340px) 1fr;gap:16px;align-items:start}
+@media (max-width:680px){.grid{grid-template-columns:1fr}}
+.pane{background:var(--panel);border:1px solid var(--border-soft);border-radius:6px;padding:16px}
+label{display:block;font-size:11px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;
+  color:var(--muted);margin:14px 0 5px}
+label:first-child{margin-top:0}
+select,input[type=number]{width:100%;font:inherit;font-size:13.5px;color:var(--ink);
+  background:var(--panel2);border:1px solid var(--border-soft);border-radius:5px;padding:8px 10px}
+select:focus,input:focus{outline:none;border-color:var(--gold)}
+input[type=number]{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chips button{font:inherit;font-size:12.5px;color:var(--muted);background:var(--panel2);
+  border:1px solid var(--border-soft);border-radius:99px;padding:5px 12px;cursor:pointer}
+.chips button.on{color:var(--ground);background:var(--gold);border-color:var(--gold);font-weight:600}
+.chips button:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.hint{font-size:11.5px;color:var(--faint);margin-top:4px}
+.customrow{display:flex;align-items:center;gap:8px}
+.customrow span{font-family:var(--mono);color:var(--muted)}
+
+.verdict{font-family:var(--display);font-weight:700;font-size:30px;letter-spacing:.03em;
+  margin:0 0 2px;color:var(--verdict,var(--gold));text-wrap:balance}
+.verdictsub{color:var(--muted);margin:0 0 16px;font-size:13.5px}
+.meter{height:10px;border:1px solid var(--border);border-radius:99px;background:var(--panel2);
+  overflow:hidden;margin-bottom:6px}
+.meter i{display:block;height:100%;background:linear-gradient(90deg,var(--red),var(--gold) 50%,var(--green));
+  width:var(--w,0%);transition:width .4s}
+.meterlab{display:flex;justify-content:space-between;font-size:10.5px;color:var(--faint);
+  font-family:var(--mono);margin-bottom:18px}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media (max-width:480px){.stats{grid-template-columns:1fr}}
+.stat{background:var(--panel2);border:1px solid var(--border-soft);border-radius:5px;padding:10px 12px}
+.stat .k{font-size:11px;color:var(--muted);letter-spacing:.05em;text-transform:uppercase}
+.stat .v{font-family:var(--mono);font-size:17px;font-variant-numeric:tabular-nums;margin-top:2px}
+.stat .v small{font-size:11px;color:var(--faint)}
+.miles{margin:18px 0 0;padding:0;list-style:none;font-size:13px;color:var(--muted)}
+.miles li{display:flex;justify-content:space-between;gap:12px;padding:5px 0;
+  border-top:1px solid var(--border-soft)}
+.miles b{font-family:var(--mono);font-weight:500;color:var(--ink);font-variant-numeric:tabular-nums}
+.miles .hit b{color:var(--green)}
+footer{margin-top:16px;font-size:12px;color:var(--faint);line-height:1.6}
+footer b{color:var(--muted);font-weight:500}
+</style>
+
+<div class="wrap">
+<header>
+  <h1>The Drop Oracle</h1>
+  <div class="tagline">dry, or deserved? · rates from the OSRS Wiki · KCs from 6 Sep 2026 hiscores</div>
+</header>
+
+<div class="grid">
+<div class="pane">
+  <label>Whose kill count?</label>
+  <div class="chips" id="who"></div>
+  <label for="boss">Boss</label>
+  <select id="boss"></select>
+  <label for="drop">Drop</label>
+  <select id="drop"></select>
+  <div id="customwrap" hidden>
+    <label for="rate">Drop rate</label>
+    <div class="customrow"><span>1 /</span><input type="number" id="rate" min="2" value="512"></div>
+  </div>
+  <label for="kc">Kill count</label>
+  <input type="number" id="kc" min="0" value="0">
+  <div class="hint" id="kchint"></div>
+  <label for="got">Copies received</label>
+  <input type="number" id="got" min="0" value="0">
+</div>
+
+<div class="pane">
+  <p class="verdict" id="verdict">—</p>
+  <p class="verdictsub" id="verdictsub"></p>
+  <div class="meter"><i id="meterbar"></i></div>
+  <div class="meterlab"><span>cursed</span><span>on rate</span><span>spooned</span></div>
+  <div class="stats">
+    <div class="stat"><div class="k">Expected by now</div><div class="v" id="s-exp">—</div></div>
+    <div class="stat"><div class="k">You have</div><div class="v" id="s-got">—</div></div>
+    <div class="stat"><div class="k">Luck percentile</div><div class="v" id="s-pct">—</div></div>
+    <div class="stat"><div class="k">This dry or worse</div><div class="v" id="s-odds">—</div></div>
+  </div>
+  <ul class="miles" id="miles"></ul>
+</div>
+</div>
+
+<footer>
+  Percentile = share of players with your KC who would have <b>more</b> copies than you (higher is
+  luckier). Rates are effective per-kill rates from the wiki; DT2 vestiges use a hidden 3-roll
+  system, so treat those as approximations. Royal Titans rates assume full damage (solo) — in a
+  duo they scale with your share. Ask Claude to refresh KCs or add bosses/drops.
+</footer>
+</div>
+
+<script>
+const KC={"Papa Davo":{"Zulrah":1014,"Cerberus":580,"Kraken":587,"The Corrupted Gauntlet":404,"Alchemical Hydra":149,"Araxxor":291,"Duke Sucellus":376,"Vardorvis":142,"Yama":206,"The Royal Titans":489,"Abyssal Sire":550,"Vorkath":51},
+"GIM DogSauce":{"Zulrah":7,"Cerberus":0,"Kraken":0,"The Corrupted Gauntlet":2,"Alchemical Hydra":0,"Araxxor":0,"Duke Sucellus":1,"Vardorvis":1,"Yama":0,"The Royal Titans":313,"Abyssal Sire":0,"Vorkath":12},
+"GIM ArchNem":{"Zulrah":45,"Cerberus":0,"Kraken":0,"The Corrupted Gauntlet":61,"Alchemical Hydra":0,"Araxxor":0,"Duke Sucellus":1,"Vardorvis":4,"Yama":0,"The Royal Titans":123,"Abyssal Sire":0,"Vorkath":25}};
+
+const BOSSES=[
+ {name:"Zulrah",drops:[["Tanzanite fang",512],["Magic fang",512],["Serpentine visage",512],
+   ["Uncut onyx",512],["Either mutagen",3277],["Tanzanite mutagen",6554],["Magma mutagen",6554],
+   ["Jar of swamp",3000],["Pet snakeling",4000]]},
+ {name:"Cerberus",drops:[["Primordial crystal",520],["Pegasian crystal",520],["Eternal crystal",520],
+   ["Smouldering stone",520],["Any unique",130],["Jar of souls",2000],["Hellpuppy",3000]]},
+ {name:"Kraken",drops:[["Trident of the seas",512],["Kraken tentacle",400],["Jar of dirt",1000],
+   ["Pet kraken",3000]]},
+ {name:"The Corrupted Gauntlet",drops:[["Enhanced weapon seed",400],["Crystal armour seed",50],
+   ["Youngllef",800]]},
+ {name:"Alchemical Hydra",drops:[["Hydra's claw",1001],["Hydra tail",513],["Hydra leather",514],
+   ["Brimstone ring piece (each)",181],["Dragon knife",2001],["Jar of chemicals",2000],
+   ["Ikkle hydra",3000]]},
+ {name:"Araxxor",drops:[["Any halberd piece",200],["Specific halberd piece",600],["Araxyte fang",600],
+   ["Araxyte head",250],["Jar of venom",1500],["Nid",3000]]},
+ {name:"Duke Sucellus",drops:[["Magus vestige",720],["Chromium ingot",240],["Eye of the duke",720],
+   ["Virtus piece (each)",2160],["Baron",2500]]},
+ {name:"Vardorvis",drops:[["Ultor vestige",1088],["Chromium ingot",363],["Executioner's axe head",1088],
+   ["Virtus piece (each)",3264],["Butch",3000]]},
+ {name:"Yama",drops:[["Any oathplate piece",200],["Specific oathplate piece",600],["Soulflame horn",300],
+   ["Yami",2500]]},
+ {name:"The Royal Titans",drops:[["Deadeye prayer scroll",75],["Mystic vigour prayer scroll",75],
+   ["Staff crown (each)",75],["Giantsoul amulet",16],["Bran",3000]]},
+ {name:"Abyssal Sire",drops:[["Unsired",100]]},
+ {name:"Vorkath",drops:[["Draconic visage",5000],["Skeletal visage",5000],["Jar of decay",3000],
+   ["Vorki",3000]]},
+ {name:"Custom rate…",drops:[]},
+];
+
+const $=id=>document.getElementById(id);
+const fmt=n=>n.toLocaleString("en-US");
+let who="Papa Davo";
+
+const whoEl=$("who");
+for(const k of Object.keys(KC)){
+  const b=document.createElement("button");
+  b.textContent=k+(k==="Papa Davo"?" (you)":"");
+  b.dataset.k=k;
+  b.onclick=()=>{who=k;whoEl.querySelectorAll("button").forEach(x=>
+    x.classList.toggle("on",x.dataset.k===who));fillKC();calc();};
+  whoEl.appendChild(b);
+}
+whoEl.querySelector("button").classList.add("on");
+
+const bossEl=$("boss"),dropEl=$("drop");
+bossEl.innerHTML=BOSSES.map(b=>`<option>${b.name}</option>`).join("");
+function fillDrops(){
+  const b=BOSSES.find(x=>x.name===bossEl.value);
+  const custom=!b.drops.length;
+  $("customwrap").hidden=!custom;
+  dropEl.innerHTML=custom?`<option>Custom drop</option>`:
+    b.drops.map(d=>`<option value="${d[1]}">${d[0]} — 1/${fmt(d[1])}</option>`).join("");
+  dropEl.disabled=custom;
+}
+function fillKC(){
+  const kc=(KC[who]||{})[bossEl.value];
+  if(kc!==undefined){$("kc").value=kc;
+    $("kchint").textContent=`${who}'s hiscores KC (edit freely)`;}
+  else $("kchint").textContent="No hiscores KC for this pick — enter manually.";
+}
+bossEl.onchange=()=>{fillDrops();fillKC();calc();};
+dropEl.onchange=calc;
+["rate","kc","got"].forEach(id=>$(id).addEventListener("input",calc));
+
+// P(X <= k) for X ~ Binomial(n, p), computed in log space
+function binomCdf(k,n,p){
+  if(n<=0)return 1;
+  const lp=Math.log(p),lq=Math.log1p(-p);
+  let logTerm=n*lq,sum=0;         // i = 0 term
+  for(let i=0;i<=k;i++){
+    if(i>0)logTerm+=Math.log((n-i+1)/i)+lp-lq;
+    sum+=Math.exp(logTerm);
+    if(sum>=1){sum=1;break}
+  }
+  return Math.min(1,sum);
+}
+const need=(p,conf)=>Math.ceil(Math.log(1-conf)/Math.log1p(-p));
+
+function calc(){
+  const custom=$("customwrap").hidden===false;
+  const denom=custom?Math.max(2,+$("rate").value||512):+dropEl.value;
+  const p=1/denom, n=Math.max(0,Math.floor(+$("kc").value||0)),
+        k=Math.max(0,Math.floor(+$("got").value||0));
+  const exp=n*p;
+  const cdf=binomCdf(k,n,p);           // this many or fewer
+  const luckier=1-binomCdf(k===0?0:k-1,n,p)+0; // P(>= k)… not needed; percentile below
+  const pct=(1-cdf)*100;               // share of players who'd have MORE than you
+  let v,c;
+  if(n===0){v="No kills yet";c="var(--muted)"}
+  else if(cdf<=0.01){v="Cursed";c="var(--red)"}
+  else if(cdf<=0.10){v="Parched";c="var(--red)"}
+  else if(cdf<=0.35){v="Dry";c="var(--gold)"}
+  else if(cdf<=0.75){v="On rate";c="var(--ink)"}
+  else {v="Spooned";c="var(--green)"}
+  const verd=$("verdict");verd.textContent=v;verd.style.setProperty("--verdict",c);
+  $("verdictsub").textContent=n===0?"Enter a kill count to consult the oracle.":
+    `${fmt(k)} × ${dropEl.disabled?"custom drop":dropEl.options[dropEl.selectedIndex].text.split(" — ")[0]} in ${fmt(n)} kc at 1/${fmt(denom)}`;
+  $("meterbar").style.setProperty("--w",(cdf*100).toFixed(1)+"%");
+  $("s-exp").innerHTML=exp<0.005?"~0":exp.toFixed(2);
+  $("s-got").textContent=fmt(k);
+  $("s-pct").innerHTML=n===0?"—":`${cdf<=0.5?"bottom":"top"} ${(cdf<=0.5?cdf*100:100-cdf*100).toFixed(cdf*100<1||cdf*100>99?2:1)}%`;
+  $("s-odds").innerHTML=n===0||cdf>=0.999?"—":
+    `1 in ${fmt(Math.max(1,Math.round(1/cdf)))} <small>players</small>`;
+  const m=$("miles");
+  m.innerHTML=[["On drop rate",denom],["50% of players have it",need(p,.5)],
+    ["90% have it",need(p,.9)],["99% have it",need(p,.99)]]
+    .map(([lab,kcN])=>`<li class="${n>=kcN?"hit":""}"><span>${lab}</span><b>${fmt(kcN)} kc${n>=kcN?" ✓":""}</b></li>`).join("");
+}
+fillDrops();fillKC();calc();
+</script>

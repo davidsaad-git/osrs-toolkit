@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ToA Field Notes</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+:root{
+  --ground:#16120d; --panel:#211b13; --panel2:#2a2318; --panel3:#332a1c;
+  --border:#4d3d24; --border-soft:#3a2f1d;
+  --ink:#e9dcbe; --muted:#a08c66; --faint:#6f6047;
+  --gold:#f5c235; --green:#9ad24b; --red:#e0674f; --blue:#7fb8d9;
+  --display:'Cinzel',Georgia,serif;
+  --sans:'IBM Plex Sans',system-ui,sans-serif;
+  --mono:'IBM Plex Mono',Consolas,monospace;
+}
+*{box-sizing:border-box}
+body{background:var(--ground);color:var(--ink);font-family:var(--sans);margin:0;
+  font-size:14px;line-height:1.5}
+.wrap{max-width:940px;margin:0 auto;padding:28px 20px 64px}
+header{border-bottom:2px solid var(--border);padding-bottom:14px;margin-bottom:20px;
+  display:flex;align-items:baseline;justify-content:space-between;flex-wrap:wrap;gap:4px 16px}
+h1{font-family:var(--display);font-weight:700;font-size:26px;margin:0;color:var(--gold);
+  letter-spacing:.02em}
+.tagline{font-family:var(--mono);font-size:12px;color:var(--muted)}
+
+.cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:14px}
+.room{background:var(--panel);border:1px solid var(--border-soft);border-radius:6px;
+  padding:14px 16px;border-top:3px solid var(--accent,var(--border))}
+.room h2{font-family:var(--display);font-weight:600;font-size:16px;margin:0 0 2px;
+  color:var(--accent,var(--gold));letter-spacing:.03em;display:flex;align-items:baseline;
+  justify-content:space-between;gap:8px}
+.room h2 .style{font-family:var(--mono);font-size:10.5px;color:var(--muted);letter-spacing:.05em}
+.room ul{margin:8px 0 0;padding-left:17px}
+.room li{margin-bottom:5px;color:var(--muted)}
+.room li b{color:var(--ink);font-weight:500}
+.room li .warn{color:var(--red);font-weight:600}
+.room li .pray{color:var(--blue)}
+.sect{font-family:var(--display);font-weight:600;font-size:14px;letter-spacing:.08em;
+  text-transform:uppercase;color:var(--faint);margin:26px 0 10px}
+.sect:first-of-type{margin-top:0}
+
+.invos{background:var(--panel);border:1px solid var(--border-soft);border-radius:6px;padding:14px 16px}
+.invos h3{font-family:var(--display);font-size:14px;color:var(--gold);margin:0 0 6px}
+.invos p{margin:0 0 10px;font-size:12.5px;color:var(--muted)}
+.pills{display:flex;flex-wrap:wrap;gap:6px}
+.pills span{font-family:var(--mono);font-size:11.5px;background:var(--panel2);
+  border:1px solid var(--border-soft);border-radius:99px;padding:3px 10px;color:var(--ink)}
+.pills span.off{color:var(--faint);text-decoration:line-through}
+footer{margin-top:18px;font-size:12px;color:var(--faint);line-height:1.6}
+footer b{color:var(--muted);font-weight:500}
+</style>
+
+<div class="wrap">
+<header>
+  <h1>ToA Field Notes</h1>
+  <div class="tagline">expert-mode quick reference · keep on the second monitor</div>
+</header>
+
+<div class="sect">Invocations</div>
+<div class="cols" style="grid-template-columns:repeat(auto-fit,minmax(340px,1fr))">
+  <div class="invos">
+    <h3>Comfortable expert (~300)</h3>
+    <p>The standard "everything useful, nothing evil" loadout. Verify the total in the lobby.</p>
+    <div class="pills"><span>Softcore Run</span><span>Walk for It</span><span>Pathseeker</span>
+    <span>Need Less Help?</span><span>On a Diet</span><span>Dehydration</span>
+    <span>Lively Larvae</span><span>More Overlords</span><span>Blowing Mud</span>
+    <span>Medic</span><span>Aerial Assault</span><span>Not Just a Head</span>
+    <span>Arterial Spray</span><span>Blood Thinners</span><span>Upset Stomach</span>
+    <span>Mind the Gap!</span><span>Gotta Have Faith</span><span>Jungle Japes</span>
+    <span>Shaking Things Up</span><span>Boulderdash</span></div>
+  </div>
+  <div class="invos">
+    <h3>Invocations to avoid until comfy</h3>
+    <p>Each of these changes how a room plays, not just the numbers.</p>
+    <div class="pills"><span class="off">Quiet Prayers / Deadly Prayers</span>
+    <span class="off">Overly Draining</span><span class="off">Keep Back</span>
+    <span class="off">Stay Vigilant</span><span class="off">Feeling Special?</span>
+    <span class="off">Double Trouble</span><span class="off">Insanity</span></div>
+  </div>
+</div>
+
+<div class="sect">Path of Crondis &amp; Zebak</div>
+<div class="cols">
+  <div class="room" style="--accent:var(--green)">
+    <h2>Crondis puzzle <span class="style">agility</span></h2>
+    <ul>
+      <li>Fill the container at the waterfall, water the <b>palm tree</b> before the timer empties.</li>
+      <li>Zig-zag past crocodiles — getting caught <span class="warn">spills water</span>.</li>
+      <li>Run energy room — save stamina sips for the boss.</li>
+    </ul>
+  </div>
+  <div class="room" style="--accent:var(--green)">
+    <h2>Zebak <span class="style">ranged</span></h2>
+    <ul>
+      <li><b>Blood clouds heal him</b> — kill them the moment they spawn.</li>
+      <li>Roar wave: <b>jump with the rocks</b> or eat the stun; acid trail blocks tiles.</li>
+      <li>Boulders push you — don't get shoved into acid.</li>
+      <li>Enrage: faster waves + more acid. Save a <b>salt refresh</b> for it.</li>
+    </ul>
+  </div>
+</div>
+
+<div class="sect">Path of Scabaras &amp; Kephri</div>
+<div class="cols">
+  <div class="room" style="--accent:var(--gold)">
+    <h2>Scabaras puzzle <span class="style">brain</span></h2>
+    <ul>
+      <li>Addition puzzle: stand on tiles summing to the target number.</li>
+      <li>Matching: flip and pair the symbols — memorize before flipping.</li>
+      <li>Fastest path room in the raid — bank the time here.</li>
+    </ul>
+  </div>
+  <div class="room" style="--accent:var(--gold)">
+    <h2>Kephri <span class="style">melee (stab)</span></h2>
+    <ul>
+      <li>Shield up = DPS the <b>exploding scarabs into her</b> phase; dung attack arcs — move off the splat tile.</li>
+      <li>Swarm phase: <span class="pray">Protect from Melee</span>, step away from exploders.</li>
+      <li><b>Arcane scarabs heal her shield</b> — kill them first every wave.</li>
+      <li>Fireball barrage: keep moving diagonally; never stand still.</li>
+    </ul>
+  </div>
+</div>
+
+<div class="sect">Path of Apmeken &amp; Ba-Ba</div>
+<div class="cols">
+  <div class="room" style="--accent:var(--red)">
+    <h2>Apmeken puzzle <span class="style">chaos</span></h2>
+    <ul>
+      <li>Pillar room: match the sense (sight/smell/hearing) to the correct pillar.</li>
+      <li><b>Volatile monkeys explode</b> — off-tile before the bar fills; cursed ones drain prayer.</li>
+      <li>Solo: do the vents in a fixed order and keep moving.</li>
+    </ul>
+  </div>
+  <div class="room" style="--accent:var(--red)">
+    <h2>Ba-Ba <span class="style">melee</span></h2>
+    <ul>
+      <li>Boulder roll: stand in the <b>gap in the boulder line</b>.</li>
+      <li>Sarcophagus slam drops rubble — <span class="warn">don't attack through falling rocks</span>.</li>
+      <li>Baboon waves: kill smalls fast (shadow baboons drain prayer, volatile explode).</li>
+      <li>Edge shove attack: stand off the pit line when she winds up.</li>
+    </ul>
+  </div>
+</div>
+
+<div class="sect">Path of Het &amp; Akkha</div>
+<div class="cols">
+  <div class="room" style="--accent:var(--blue)">
+    <h2>Het puzzle <span class="style">mirrors</span></h2>
+    <ul>
+      <li>Pick up the <b>shield</b> first — orb beam chunks you without it.</li>
+      <li>Rotate mirrors to route the light beam to the statue; mine rubble in the way.</li>
+      <li>Drop the shield before leaving — it's room-only.</li>
+    </ul>
+  </div>
+  <div class="room" style="--accent:var(--blue)">
+    <h2>Akkha <span class="style">magic</span></h2>
+    <ul>
+      <li>Match <span class="pray">protection prayer</span> to his style — he swaps after every special.</li>
+      <li>Quadrant specials: hug the current quadrant edge, sidestep the elemental orbs.</li>
+      <li>Memory special: repeat the flashed sequence — <b>walk it calmly</b>, it's not a DPS race.</li>
+      <li>Final phase: detonating orbs sweep the room — count lanes before committing.</li>
+    </ul>
+  </div>
+</div>
+
+<div class="sect">The Wardens</div>
+<div class="cols">
+  <div class="room" style="--accent:var(--gold)">
+    <h2>P1 — Obelisk <span class="style">all styles</span></h2>
+    <ul>
+      <li>DPS the obelisk; dodge the skull volleys and lightning tiles.</li>
+      <li>Prayer-switch on the warden attacks from the sides.</li>
+      <li>This phase sets your P2 — bank damage safely, don't greed through skulls.</li>
+    </ul>
+  </div>
+  <div class="room" style="--accent:var(--gold)">
+    <h2>P2 — Core <span class="style">burst dps</span></h2>
+    <ul>
+      <li>Warden slams → <b>core exposed</b> → dump your biggest hits into it.</li>
+      <li>Between cores: dodge vents and lightning, keep supplies topped.</li>
+      <li><span class="warn">Missing a core window is the raid's biggest time loss.</span></li>
+    </ul>
+  </div>
+  <div class="room" style="--accent:var(--red)">
+    <h2>P3 — Enrage <span class="style">survive</span></h2>
+    <ul>
+      <li>Rising floor tiles: pre-move, never react late.</li>
+      <li>Phantom bosses echo earlier rooms — same answers as before (Ba-Ba slam, Akkha orbs, Kephri swarm, Zebak wave).</li>
+      <li>Lightning intensifies as hp drops — save <b>ambrosia / thralls / specs</b> for the last 30%.</li>
+    </ul>
+  </div>
+</div>
+
+<footer>
+  Written for your comfort zone (~300 expert). General style per room: <b>Zebak ranged · Kephri
+  stab · Ba-Ba melee · Akkha magic</b> — bring the best you own of each and salts/nectar from the
+  helpful spirit. Tell Claude your exact gear and this page gets rewritten around your actual
+  switches; ask for a CoX or ToB sheet when you start learning them.
+</footer>
+</div>

@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Davo's Upgrade Path</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+:root{
+  --ground:#16120d; --panel:#211b13; --panel2:#2a2318; --panel3:#332a1c;
+  --border:#4d3d24; --border-soft:#3a2f1d;
+  --ink:#e9dcbe; --muted:#a08c66; --faint:#6f6047;
+  --gold:#f5c235; --green:#9ad24b;
+  --display:'Cinzel',Georgia,serif;
+  --sans:'IBM Plex Sans',system-ui,sans-serif;
+  --mono:'IBM Plex Mono',Consolas,monospace;
+}
+*{box-sizing:border-box}
+body{background:var(--ground);color:var(--ink);font-family:var(--sans);margin:0;
+  font-size:14px;line-height:1.5}
+.wrap{max-width:880px;margin:0 auto;padding:28px 20px 64px}
+header{border-bottom:2px solid var(--border);padding-bottom:14px;margin-bottom:18px;
+  display:flex;align-items:baseline;justify-content:space-between;flex-wrap:wrap;gap:4px 16px}
+h1{font-family:var(--display);font-weight:700;font-size:26px;margin:0;color:var(--gold);
+  letter-spacing:.02em}
+.tagline{font-family:var(--mono);font-size:12px;color:var(--muted)}
+
+.summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin-bottom:18px}
+.sum{background:var(--panel);border:1px solid var(--border-soft);border-radius:6px;padding:11px 14px}
+.sum .k{font-size:11px;color:var(--muted);letter-spacing:.06em;text-transform:uppercase}
+.sum .v{font-family:var(--mono);font-size:18px;font-variant-numeric:tabular-nums;margin-top:2px}
+.sum .v.green{color:var(--green)}
+.sum .v.gold{color:var(--gold)}
+
+.controls{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:14px;align-items:center}
+.seg{display:flex;border:1px solid var(--border-soft);border-radius:5px;overflow:hidden}
+.seg button{font:inherit;font-size:12.5px;color:var(--muted);background:var(--panel);
+  border:none;padding:6px 12px;cursor:pointer}
+.seg button + button{border-left:1px solid var(--border-soft)}
+.seg button.on{background:var(--panel3);color:var(--ink)}
+.seg button:focus-visible{outline:2px solid var(--gold);outline-offset:-2px}
+
+section{margin-bottom:22px}
+h2{font-family:var(--display);font-weight:600;font-size:16px;letter-spacing:.04em;
+  color:var(--gold);margin:0 0 2px;display:flex;align-items:baseline;gap:10px}
+h2 .sub{font-family:var(--mono);font-size:11.5px;color:var(--faint);font-weight:400}
+.items{border:1px solid var(--border-soft);border-radius:6px;overflow:hidden;background:var(--panel)}
+.item{display:grid;grid-template-columns:auto 1fr auto;gap:4px 12px;align-items:center;
+  padding:9px 14px;border-bottom:1px solid var(--border-soft);cursor:pointer}
+.item:last-child{border-bottom:none}
+.item:hover{background:var(--panel2)}
+.item input{width:16px;height:16px;accent-color:var(--gold);cursor:pointer}
+.item .nm{font-size:13.5px}
+.item .note{grid-column:2/4;font-size:11.5px;color:var(--faint);margin-top:-3px}
+.item .pr{font-family:var(--mono);font-size:13px;font-variant-numeric:tabular-nums;
+  color:var(--muted);text-align:right;white-space:nowrap}
+.item.owned .nm{color:var(--faint);text-decoration:line-through}
+.item.owned .pr{color:var(--green);text-decoration:none}
+.item.owned .pr::after{content:" ✓"}
+.item .tag{display:inline-block;font-size:9.5px;font-weight:600;letter-spacing:.07em;
+  border-radius:3px;padding:1px 5px;margin-left:7px;vertical-align:1px;
+  color:var(--ground);background:var(--gold)}
+.item .tag.lux{background:var(--panel3);color:var(--muted);border:1px solid var(--border-soft)}
+footer{margin-top:8px;font-size:12px;color:var(--faint);line-height:1.6}
+footer b{color:var(--muted);font-weight:500}
+</style>
+
+<div class="wrap">
+<header>
+  <h1>Davo's Upgrade Path</h1>
+  <div class="tagline">GE prices from <b>7 Sep 2026</b> · tick what you own — it's remembered</div>
+</header>
+
+<div class="summary">
+  <div class="sum"><div class="k">Still to buy</div><div class="v gold" id="t-left">—</div></div>
+  <div class="sum"><div class="k">Owned value</div><div class="v green" id="t-own">—</div></div>
+  <div class="sum"><div class="k">Items ticked</div><div class="v" id="t-count">—</div></div>
+</div>
+
+<div class="controls">
+  <div class="seg" id="view">
+    <button data-v="all">Everything</button>
+    <button data-v="todo">Still needed</button>
+    <button data-v="core">Core picks only</button>
+  </div>
+</div>
+
+<div id="sections"></div>
+
+<footer>
+  <b>CORE</b> = the value picks that carry your PvM given your stats; untagged = solid but
+  situational; <b>LUX</b> = endgame luxury. Ferocious gloves are priced as hydra leather and
+  Emberlight as a tormented synapse (the tradeable components). Crystal armour for a bowfa setup
+  needs <b>6 armour seeds</b> (helm 1 / legs 2 / body 3) — the listed price is per seed.
+  Prices move — ask Claude to refresh them, or to re-tier this list once you've told it what you own.
+</footer>
+</div>
+
+<script>
+const M=1e6;
+const ITEMS=[
+ // Melee
+ {c:"Melee",n:"Osmumten's fang",p:17790000,tag:"core",note:"Best-value melee upgrade in the game — ToA, Colosseum, general stabbing."},
+ {c:"Melee",n:"Amulet of torture",p:20230964,tag:"core"},
+ {c:"Melee",n:"Ferocious gloves (hydra leather)",p:9285240,tag:"core"},
+ {c:"Melee",n:"Primordial boots",p:18928606,tag:"core"},
+ {c:"Melee",n:"Avernic defender hilt",p:31076408,note:"Needs a dragon defender to combine."},
+ {c:"Melee",n:"Bandos chestplate",p:23654680,note:"Stepping stone if skipping straight to Torva feels steep."},
+ {c:"Melee",n:"Bandos tassets",p:16199999},
+ {c:"Melee",n:"Torva full helm",p:211221742,tag:"lux"},
+ {c:"Melee",n:"Torva platebody",p:173842222,tag:"lux"},
+ {c:"Melee",n:"Torva platelegs",p:109816491,tag:"lux"},
+ {c:"Melee",n:"Ultor ring",p:109000000,note:"Big DPS ring — you're 142 Vardorvis KC from a shot at your own vestige."},
+ {c:"Melee",n:"Bellator ring",p:20176471,note:"Pairs with fang for slash-weak content."},
+ {c:"Melee",n:"Dragon claws",p:38626678},
+ {c:"Melee",n:"Burning claws",p:3762044,note:"Budget spec weapon — 90% of d claws for 10% of the price."},
+ {c:"Melee",n:"Voidwaker",p:38411340,note:"Guaranteed-hit spec — great at Vardorvis and Colosseum."},
+ {c:"Melee",n:"Dragon hunter lance",p:48736498,note:"Only if you're doing lots of Cerberus/Hydra slayer."},
+ {c:"Melee",n:"Soulreaper axe",p:413000000,tag:"lux"},
+ {c:"Melee",n:"Oathplate helm",p:83135910,tag:"lux"},
+ {c:"Melee",n:"Oathplate chest",p:86100000,tag:"lux"},
+ {c:"Melee",n:"Oathplate legs",p:86084683,tag:"lux"},
+ // Ranged
+ {c:"Ranged",n:"Toxic blowpipe (empty)",p:9765432,tag:"core"},
+ {c:"Ranged",n:"Necklace of anguish",p:20394928,tag:"core"},
+ {c:"Ranged",n:"Enhanced crystal weapon seed (bowfa)",p:117000000,tag:"core",note:"With 404 CG kc you know the grind — buying skips the RNG. Needs crystal armour to sing."},
+ {c:"Ranged",n:"Crystal armour seed (per seed, ×6)",p:5805437,tag:"core"},
+ {c:"Ranged",n:"Armadyl chestplate",p:37444000,note:"Skip if going straight to Masori."},
+ {c:"Ranged",n:"Armadyl chainskirt",p:28072960},
+ {c:"Ranged",n:"Masori mask (f)",p:18469991},
+ {c:"Ranged",n:"Masori body (f)",p:80722976},
+ {c:"Ranged",n:"Masori chaps (f)",p:56720785},
+ {c:"Ranged",n:"Zaryte vambraces",p:74007964},
+ {c:"Ranged",n:"Pegasian boots",p:35831070},
+ {c:"Ranged",n:"Dragon hunter crossbow",p:30323939,note:"Vorkath/Hydra specialist."},
+ {c:"Ranged",n:"Venator bow (uncharged)",p:63690708,note:"AoE chinning for slayer — huge xp/hr."},
+ {c:"Ranged",n:"Venator ring",p:48499575},
+ {c:"Ranged",n:"Zaryte crossbow",p:362500000,tag:"lux"},
+ {c:"Ranged",n:"Twisted bow",p:1395475499,tag:"lux",note:"The endgame. CoX, Zuk, Nex — the item that changes what you can do."},
+ // Magic
+ {c:"Magic",n:"Occult necklace",p:412648,tag:"core",note:"400k for +10% magic damage. If unticked, buy it before closing this page."},
+ {c:"Magic",n:"Tormented bracelet",p:20400000,tag:"core"},
+ {c:"Magic",n:"Eternal boots",p:4118000,tag:"core"},
+ {c:"Magic",n:"Elidinis' ward",p:3761693,note:"Basic (f) upgrade needs arcane sigil + 90 smithing/prayer to bless."},
+ {c:"Magic",n:"Sanguinesti staff (uncharged)",p:17601320,note:"Sustain + damage; ToB's gift to everyone else."},
+ {c:"Magic",n:"Kodai wand",p:55300000},
+ {c:"Magic",n:"Magus ring",p:23569562,note:"Duke drops it — you're 376 kc deep already."},
+ {c:"Magic",n:"Ancestral hat",p:47532725},
+ {c:"Magic",n:"Ancestral robe top",p:92234199},
+ {c:"Magic",n:"Ancestral robe bottom",p:69000000},
+ {c:"Magic",n:"Tumeken's shadow (uncharged)",p:799799090,tag:"lux"},
+ // Utility & prayer
+ {c:"Utility & prayer",n:"Lightbearer",p:4189999,note:"You own this one already."},
+ {c:"Utility & prayer",n:"Arcane prayer scroll",p:5264970,tag:"core"},
+ {c:"Utility & prayer",n:"Dexterous prayer scroll",p:17244485,tag:"core",note:"Rigour is the biggest prayer upgrade in the game."},
+ {c:"Utility & prayer",n:"Emberlight (tormented synapse)",p:37831601,note:"Demonbane — Cerberus, K'ril, Duke, Tormented demons."},
+];
+const CATS=[...new Set(ITEMS.map(i=>i.c))];
+const fmtGp=v=>v>=1e9?(v/1e9).toFixed(2)+"b":v>=1e6?(v/1e6).toFixed(1)+"m":Math.round(v/1e3)+"k";
+
+let owned={};
+try{owned=JSON.parse(localStorage.getItem("upgrade-owned"))||{}}catch(e){}
+if(!("Lightbearer" in owned))owned["Lightbearer"]=true; // mentioned in chat
+let view="all";
+try{view=localStorage.getItem("upgrade-view")||"all"}catch(e){}
+function save(){try{localStorage.setItem("upgrade-owned",JSON.stringify(owned));
+  localStorage.setItem("upgrade-view",view)}catch(e){}}
+
+const secEl=document.getElementById("sections");
+function render(){
+  document.querySelectorAll("#view button").forEach(b=>b.classList.toggle("on",b.dataset.v===view));
+  let left=0,own=0,cnt=0;
+  for(const i of ITEMS){if(owned[i.n]){own+=i.p;cnt++}else left+=i.p}
+  document.getElementById("t-left").textContent=fmtGp(left)+" gp";
+  document.getElementById("t-own").textContent=fmtGp(own)+" gp";
+  document.getElementById("t-count").textContent=cnt+" / "+ITEMS.length;
+  secEl.innerHTML="";
+  for(const c of CATS){
+    let items=ITEMS.filter(i=>i.c===c);
+    if(view==="todo")items=items.filter(i=>!owned[i.n]);
+    if(view==="core")items=items.filter(i=>i.tag==="core");
+    if(!items.length)continue;
+    const rem=items.filter(i=>!owned[i.n]).reduce((s,i)=>s+i.p,0);
+    const s=document.createElement("section");
+    s.innerHTML=`<h2>${c}<span class="sub">${fmtGp(rem)} gp to go</span></h2>`;
+    const box=document.createElement("div");box.className="items";
+    for(const i of items){
+      const row=document.createElement("label");
+      row.className="item"+(owned[i.n]?" owned":"");
+      row.innerHTML=`<input type="checkbox" ${owned[i.n]?"checked":""}>
+        <span class="nm">${i.n}${i.tag?`<span class="tag${i.tag==="lux"?" lux":""}">${i.tag==="lux"?"LUX":"CORE"}</span>`:""}</span>
+        <span class="pr">${fmtGp(i.p)}</span>
+        ${i.note?`<span class="note">${i.note}</span>`:""}`;
+      row.querySelector("input").onchange=e=>{owned[i.n]=e.target.checked;save();render();};
+      box.appendChild(row);
+    }
+    s.appendChild(box);secEl.appendChild(s);
+  }
+}
+document.querySelectorAll("#view button").forEach(b=>b.onclick=()=>{view=b.dataset.v;save();render();});
+render();
+</script>

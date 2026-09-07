@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Papa Davo's Ledger</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+:root{
+  --ground:#16120d; --panel:#211b13; --panel2:#2a2318; --panel3:#332a1c;
+  --border:#4d3d24; --border-soft:#3a2f1d;
+  --ink:#e9dcbe; --muted:#a08c66; --faint:#6f6047;
+  --gold:#f5c235; --green:#9ad24b;
+  --c-davo:#f5c235; --c-dog:#9ad24b; --c-arch:#e08e45;
+  --display:'Cinzel',Georgia,serif;
+  --sans:'IBM Plex Sans',system-ui,sans-serif;
+  --mono:'IBM Plex Mono',Consolas,monospace;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{background:var(--ground);color:var(--ink);font-family:var(--sans);margin:0;
+  font-size:14px;line-height:1.5}
+.wrap{max-width:880px;margin:0 auto;padding:28px 20px 64px}
+
+header{display:flex;align-items:baseline;justify-content:space-between;flex-wrap:wrap;
+  gap:4px 16px;border-bottom:2px solid var(--border);padding-bottom:14px;margin-bottom:20px}
+h1{font-family:var(--display);font-weight:700;font-size:26px;margin:0;letter-spacing:.02em;
+  color:var(--gold);text-wrap:balance}
+h1 .sub{color:var(--ink)}
+.snapdate{font-family:var(--mono);font-size:12px;color:var(--muted)}
+.snapdate b{color:var(--ink);font-weight:500}
+
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px;margin-bottom:20px}
+.card{background:var(--panel);border:1px solid var(--border-soft);border-radius:6px;
+  padding:12px 14px;cursor:pointer;text-align:left;font:inherit;color:inherit;
+  border-top:3px solid var(--acct);transition:background .12s, border-color .12s}
+.card:hover{background:var(--panel2)}
+.card:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.card.off{opacity:.45;border-top-color:var(--border-soft)}
+.card .nm{font-family:var(--display);font-weight:600;font-size:15px;letter-spacing:.02em;
+  display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.card .dot{width:9px;height:9px;border-radius:50%;background:var(--acct);flex:none}
+.card .you{font-family:var(--sans);font-size:10px;font-weight:600;letter-spacing:.08em;
+  color:var(--ground);background:var(--acct);border-radius:3px;padding:1px 5px;margin-left:auto}
+.card dl{display:grid;grid-template-columns:auto 1fr;gap:2px 12px;margin:0}
+.card dt{color:var(--muted);font-size:12px}
+.card dd{margin:0;text-align:right;font-family:var(--mono);font-size:12.5px;font-variant-numeric:tabular-nums}
+.card .off-note{font-size:11px;color:var(--faint);margin-top:6px}
+
+.controls{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-bottom:14px}
+.tabs{display:flex;border:1px solid var(--border);border-radius:5px;overflow:hidden}
+.tabs button{font:inherit;font-weight:500;color:var(--muted);background:var(--panel);
+  border:none;padding:7px 16px;cursor:pointer}
+.tabs button + button{border-left:1px solid var(--border-soft)}
+.tabs button.on{background:var(--panel3);color:var(--gold)}
+.tabs button:focus-visible{outline:2px solid var(--gold);outline-offset:-2px}
+.seg{display:flex;border:1px solid var(--border-soft);border-radius:5px;overflow:hidden}
+.seg button{font:inherit;font-size:12.5px;color:var(--muted);background:var(--panel);
+  border:none;padding:6px 12px;cursor:pointer}
+.seg button + button{border-left:1px solid var(--border-soft)}
+.seg button.on{background:var(--panel3);color:var(--ink)}
+.seg button:focus-visible{outline:2px solid var(--gold);outline-offset:-2px}
+.range{position:relative}
+#rangebtn{font:inherit;font-size:12.5px;color:var(--ink);background:var(--panel);
+  border:1px solid var(--border-soft);border-radius:5px;padding:6px 11px;cursor:pointer;
+  display:flex;align-items:center;gap:8px;font-variant-numeric:tabular-nums}
+#rangebtn:hover{border-color:var(--gold)}
+#rangebtn .caret{color:var(--faint);font-size:9px}
+#calpop{position:absolute;top:calc(100% + 6px);left:0;z-index:30;background:var(--panel2);
+  border:1px solid var(--border);border-radius:6px;padding:12px;
+  box-shadow:0 10px 28px rgba(0,0,0,.55);display:flex;gap:14px}
+#calpop .presets{display:flex;flex-direction:column;gap:4px;
+  border-right:1px solid var(--border-soft);padding-right:12px}
+#calpop .presets .pt{font-size:10px;font-weight:600;letter-spacing:.07em;
+  text-transform:uppercase;color:var(--faint);margin-bottom:2px}
+#calpop .presets button{font:inherit;font-size:12px;text-align:left;color:var(--muted);
+  background:none;border:none;border-radius:4px;padding:5px 9px;cursor:pointer;white-space:nowrap}
+#calpop .presets button:hover{background:var(--panel3);color:var(--gold)}
+.cal{width:226px}
+.cal .mhead{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.cal .mhead b{font-size:12.5px;font-weight:600;font-family:var(--sans)}
+.cal .mhead button{font:inherit;color:var(--muted);background:none;
+  border:1px solid var(--border-soft);border-radius:4px;width:22px;height:22px;
+  cursor:pointer;line-height:1;padding:0}
+.cal .mhead button:hover{color:var(--gold);border-color:var(--gold)}
+.cal .grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;
+  font-family:var(--mono);font-size:11.5px;text-align:center}
+.cal .dow{color:var(--faint);font-size:10px;padding:2px 0}
+.cal .d{padding:5px 0;border-radius:4px;color:var(--faint)}
+.cal .d.snap{color:var(--ink);cursor:pointer;background:var(--panel3);font-weight:600}
+.cal .d.snap:hover{outline:1px solid var(--gold)}
+.cal .d.inrange{background:var(--border-soft)}
+.cal .d.sel{background:var(--gold);color:var(--ground)}
+.cal .hint{margin-top:8px;font-size:10.5px;color:var(--faint);font-family:var(--sans)}
+#search{font:inherit;font-size:13px;color:var(--ink);background:var(--panel);
+  border:1px solid var(--border-soft);border-radius:5px;padding:7px 11px;flex:1;min-width:140px}
+#search::placeholder{color:var(--faint)}
+#search:focus{outline:none;border-color:var(--gold)}
+
+.tablebox{border:1px solid var(--border-soft);border-radius:6px;background:var(--panel)}
+@media (max-width:640px){.tablebox{overflow-x:auto}}
+table{border-collapse:collapse;width:100%;min-width:520px}
+th,td{padding:7px 14px;white-space:nowrap}
+thead th{font-size:11px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;
+  color:var(--muted);background:var(--panel2);border-bottom:1px solid var(--border);
+  text-align:right;cursor:pointer;user-select:none;
+  position:sticky;top:var(--stickytop,0px);z-index:2}
+thead th:first-child{text-align:left}
+thead th:hover{color:var(--ink)}
+thead th.sorted{color:var(--gold)}
+thead th .dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:6px;
+  vertical-align:1px}
+tbody td{border-bottom:1px solid var(--border-soft);font-family:var(--mono);
+  font-size:13px;font-variant-numeric:tabular-nums;text-align:right;color:var(--muted)}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover td{background:var(--panel2)}
+tbody td.name{font-family:var(--sans);text-align:left;color:var(--ink);font-size:13.5px}
+tbody td.lead{color:var(--gold);font-weight:600}
+tbody td.lead::after{content:" ♛";font-size:10px}
+tbody td.max99{color:var(--green)}
+tbody td.zero{color:var(--faint)}
+tbody td.gain{color:var(--green)}
+tbody tr.grouphead td{font-family:var(--sans);font-size:11px;font-weight:600;
+  letter-spacing:.07em;text-transform:uppercase;color:var(--gold);background:var(--panel2);
+  text-align:left;cursor:default}
+tbody tr.cathead td{background:var(--panel3);border-bottom-color:var(--border)}
+tbody tr.cathead td.name{font-weight:600}
+tbody tr.cathead td:not(.name){font-size:11.5px}
+tbody tr.cathead td.done{color:var(--green)}
+tbody tr.cathead .kc{display:inline-block;margin-left:9px;padding:1px 7px;border-radius:99px;
+  background:var(--ground);border:1px solid var(--border);color:var(--gold);
+  font-size:11.5px;font-weight:600}
+td .xp{color:var(--faint);font-size:11px;margin-left:6px}
+td .lv{color:var(--gold);font-size:11px;margin-left:6px}
+.empty{padding:28px;text-align:center;color:var(--faint)}
+footer{margin-top:16px;font-size:12px;color:var(--faint);line-height:1.6}
+footer b{color:var(--muted);font-weight:500}
+@media (max-width:560px){ th,td{padding:7px 9px} .wrap{padding:20px 12px 48px} }
+</style>
+
+<div class="wrap">
+<header>
+  <h1>Papa Davo's Ledger <span class="sub">· Group Hiscores</span></h1>
+  <div class="snapdate">snapshot <b id="snapdate"></b> · official OSRS hiscores</div>
+</header>
+
+<div class="cards" id="cards"></div>
+
+<div class="controls">
+  <div class="tabs" id="tabs" role="tablist">
+    <button data-tab="skills" role="tab">Skills</button>
+    <button data-tab="bosses" role="tab">Bosses</button>
+    <button data-tab="activities" role="tab">Activities</button>
+    <button data-tab="clog" role="tab">Collection Log</button>
+    <button data-tab="progress" role="tab">Progress</button>
+  </div>
+  <div class="seg" id="mode" hidden>
+    <button data-mode="level">Levels</button>
+    <button data-mode="xp">XP</button>
+  </div>
+  <div class="seg" id="zeroseg" hidden>
+    <button data-z="hide">Hide untouched</button>
+    <button data-z="all">Show all</button>
+  </div>
+  <div class="range" id="rangewrap" hidden>
+    <button id="rangebtn" aria-haspopup="dialog"></button>
+    <div id="calpop" hidden></div>
+  </div>
+  <input id="search" type="search" placeholder="Filter rows… e.g. zulrah, slayer">
+</div>
+
+<div class="tablebox"><table>
+  <thead><tr id="headrow"></tr></thead>
+  <tbody id="body"></tbody>
+</table></div>
+
+<footer>
+  Click a character card to include or exclude it from the comparison. Click a column header to
+  sort by that account; click the first column to restore default order. <b>♛</b> marks the row
+  leader among the accounts shown, <b style="color:var(--green)">green</b> is a 99.
+  Bosses and Activities cover the complete official hiscores roster — "Show all" reveals
+  everything nobody has touched yet. (Monsters like Tormented Demons aren't on Jagex's hiscores —
+  their progress shows up via collection log items instead, once an account has synced with the
+  TempleOSRS RuneLite plugin.) The <b>Progress</b> tab compares snapshots — skills, bosses,
+  activities, and new collection log items all in one place. Ask Claude to refresh the ledger any
+  time; each refresh becomes a new point to diff against.
+</footer>
+</div>
+
+<script>
+// Snapshots are appended by Claude on each refresh — oldest first.
+// Player shape: {skills, activities, temple?} where temple = {slots:[filled,total], ehc,
+// items:{"Item name":count}} from TempleOSRS collection-log API (only for synced accounts).
+const SNAPSHOTS = __SNAPSHOTS__;
+const CLOGCATS=__CLOGCATS__;
+const GROUPLABEL={bosses:"Bosses",raids:"Raids",clues:"Clues",minigames:"Minigames",other:"Other"};
+const SMALLWORDS=new Set(["of","the","and","a","in","to"]);
+const catName=slug=>slug.split("_").map((w,i)=>
+  i>0&&SMALLWORDS.has(w)?w:w.charAt(0).toUpperCase()+w.slice(1)).join(" ");
+// Items flattened across categories (an item can sit in several pages — count once).
+function flatItems(t){
+  if(!t)return null;
+  const out={};
+  for(const k in t.items){
+    const v=t.items[k];
+    if(typeof v==="number"){out[k]=Math.max(out[k]||0,v);continue}
+    for(const n in v)out[n]=Math.max(out[n]||0,v[n]);
+  }
+  return out;
+}
+// Log page -> hiscore activity name(s) whose KC sum is that page's kill count.
+const CLOG_KC={
+ abyssal_sire:["Abyssal Sire"],alchemical_hydra:["Alchemical Hydra"],amoxliatl:["Amoxliatl"],
+ araxxor:["Araxxor"],barrows_chests:["Barrows Chests"],brutus:["Brutus"],bryophyta:["Bryophyta"],
+ callisto_and_artio:["Callisto","Artio"],cerberus:["Cerberus"],chaos_elemental:["Chaos Elemental"],
+ chaos_fanatic:["Chaos Fanatic"],commander_zilyana:["Commander Zilyana"],
+ corporeal_beast:["Corporeal Beast"],crazy_archaeologist:["Crazy Archaeologist"],
+ dagannoth_kings:["Dagannoth Prime","Dagannoth Rex","Dagannoth Supreme"],
+ deranged_archaeologist:["Deranged Archaeologist"],doom_of_mokhaiotl:["Doom of Mokhaiotl"],
+ duke_sucellus:["Duke Sucellus"],fortis_colosseum:["Sol Heredit"],
+ general_graardor:["General Graardor"],giant_mole:["Giant Mole"],
+ grotesque_guardians:["Grotesque Guardians"],hespori:["Hespori"],hueycoatl:["The Hueycoatl"],
+ kalphite_queen:["Kalphite Queen"],king_black_dragon:["King Black Dragon"],kraken:["Kraken"],
+ kree_arra:["Kree'Arra"],kril_tsutsaroth:["K'ril Tsutsaroth"],maggot_king:["Maggot King"],
+ moons_of_peril:["Lunar Chests"],nex:["Nex"],obor:["Obor"],phantom_muspah:["Phantom Muspah"],
+ royal_titans:["The Royal Titans"],sarachnis:["Sarachnis"],scorpia:["Scorpia"],
+ scurrius:["Scurrius"],shellbane_gryphon:["Shellbane Gryphon"],skotizo:["Skotizo"],
+ tempoross:["Tempoross"],the_fight_caves:["TzTok-Jad"],
+ the_gauntlet:["The Gauntlet","The Corrupted Gauntlet"],the_inferno:["TzKal-Zuk"],
+ the_leviathan:["The Leviathan"],the_mad_angel:["Mad Angel"],
+ the_nightmare:["Nightmare","Phosani's Nightmare"],the_whisperer:["The Whisperer"],
+ thermonuclear_smoke_devil:["Thermonuclear Smoke Devil"],vardorvis:["Vardorvis"],
+ venenatis_and_spindel:["Venenatis","Spindel"],vetion_and_calvarion:["Vet'ion","Calvar'ion"],
+ vorkath:["Vorkath"],wintertodt:["Wintertodt"],yama:["Yama"],zalcano:["Zalcano"],zulrah:["Zulrah"],
+ chambers_of_xeric:["Chambers of Xeric","Chambers of Xeric: Challenge Mode"],
+ theatre_of_blood:["Theatre of Blood","Theatre of Blood: Hard Mode"],
+ tombs_of_amascut:["Tombs of Amascut","Tombs of Amascut: Expert Mode"],
+ beginner_treasure_trails:["Clue Scrolls (beginner)"],easy_treasure_trails:["Clue Scrolls (easy)"],
+ medium_treasure_trails:["Clue Scrolls (medium)"],hard_treasure_trails:["Clue Scrolls (hard)"],
+ elite_treasure_trails:["Clue Scrolls (elite)"],master_treasure_trails:["Clue Scrolls (master)"],
+ mimic:["Mimic"],guardians_of_the_rift:["Rifts closed"],
+};
+const LATEST=SNAPSHOTS[SNAPSHOTS.length-1], DATA=LATEST.players;
+document.getElementById("snapdate").textContent=LATEST.label;
+
+const ACCOUNTS = [
+  {key:"Papa Davo",  label:"Papa Davo",     color:"var(--c-davo)", you:true},
+  {key:"GIM DogSauce", label:"GIM DogSauce", color:"var(--c-dog)"},
+  {key:"GIM ArchNem",  label:"GIM ArchNem",  color:"var(--c-arch)"},
+];
+const SKILL_ORDER = ["Attack","Strength","Defence","Ranged","Prayer","Magic","Hitpoints",
+  "Slayer","Herblore","Agility","Thieving","Crafting","Fletching","Construction",
+  "Mining","Smithing","Fishing","Cooking","Firemaking","Woodcutting","Farming",
+  "Hunter","Runecraft","Sailing"];
+// Complete official hiscores rosters — every tracked boss and activity, even at 0 KC.
+const BOSS_LIST=["Abyssal Sire","Alchemical Hydra","Amoxliatl","Araxxor","Artio","Barrows Chests",
+ "Brutus","Bryophyta","Callisto","Calvar'ion","Cerberus","Chambers of Xeric",
+ "Chambers of Xeric: Challenge Mode","Chaos Elemental","Chaos Fanatic","Commander Zilyana",
+ "Corporeal Beast","Crazy Archaeologist","Dagannoth Prime","Dagannoth Rex","Dagannoth Supreme",
+ "Deranged Archaeologist","Doom of Mokhaiotl","Duke Sucellus","General Graardor","Giant Mole",
+ "Grotesque Guardians","Hespori","Kalphite Queen","King Black Dragon","Kraken","Kree'Arra",
+ "K'ril Tsutsaroth","Lunar Chests","Mad Angel","Maggot King","Mimic","Nex","Nightmare",
+ "Phosani's Nightmare","Obor","Phantom Muspah","Sarachnis","Scorpia","Scurrius",
+ "Shellbane Gryphon","Skotizo","Sol Heredit","Spindel","Tempoross","The Gauntlet",
+ "The Corrupted Gauntlet","The Hueycoatl","The Leviathan","The Royal Titans","The Whisperer",
+ "Theatre of Blood","Theatre of Blood: Hard Mode","Thermonuclear Smoke Devil","Tombs of Amascut",
+ "Tombs of Amascut: Expert Mode","TzKal-Zuk","TzTok-Jad","Vardorvis","Venenatis","Vet'ion",
+ "Vorkath","Wintertodt","Yama","Zalcano","Zulrah"];
+const ACTIVITY_LIST=["Grid Points","League Points","Deadman Points","Bounty Hunter - Hunter",
+ "Bounty Hunter - Rogue","Bounty Hunter (Legacy) - Hunter","Bounty Hunter (Legacy) - Rogue",
+ "Clue Scrolls (all)","Clue Scrolls (beginner)","Clue Scrolls (easy)","Clue Scrolls (medium)",
+ "Clue Scrolls (hard)","Clue Scrolls (elite)","Clue Scrolls (master)","LMS - Rank",
+ "PvP Arena - Rank","Soul Wars Zeal","Rifts closed","Colosseum Glory","Collections Logged"];
+const ACTIVITY_SET=new Set(ACTIVITY_LIST);
+
+function combatLevel(s){
+  const g=n=>s[n][0];
+  const base=0.25*(g("Defence")+g("Hitpoints")+Math.floor(g("Prayer")/2));
+  const melee=0.325*(g("Attack")+g("Strength"));
+  const range=0.325*Math.floor(g("Ranged")*1.5);
+  const mage=0.325*Math.floor(g("Magic")*1.5);
+  return Math.floor(base+Math.max(melee,range,mage));
+}
+const fmt=n=>n.toLocaleString("en-US");
+
+// --- state (persisted per viewer) ---
+let state={tab:"skills",mode:"level",active:ACCOUNTS.map(a=>a.key),sort:null,q:"",base:0,hz:"hide"};
+try{const s=JSON.parse(localStorage.getItem("ledger-state"));
+  if(s&&s.tab){state={...state,...s,q:""};
+    state.active=state.active.filter(k=>DATA[k]);
+    if(!state.active.length)state.active=ACCOUNTS.map(a=>a.key);}}catch(e){}
+state.end=Math.min(state.end===undefined?SNAPSHOTS.length-1:state.end,SNAPSHOTS.length-1);
+if(state.end<1)state.end=SNAPSHOTS.length-1;
+state.base=Math.min(state.base===undefined?state.end-1:state.base,state.end-1);
+if(state.base<0)state.base=0;
+function save(){try{localStorage.setItem("ledger-state",JSON.stringify(
+  {tab:state.tab,mode:state.mode,active:state.active,base:state.base,end:state.end,hz:state.hz}))}catch(e){}}
+
+// --- cards ---
+const cardsEl=document.getElementById("cards");
+function renderCards(){
+  cardsEl.innerHTML="";
+  for(const a of ACCOUNTS){
+    const d=DATA[a.key], on=state.active.includes(a.key);
+    const b=document.createElement("button");
+    b.className="card"+(on?"":" off");
+    b.style.setProperty("--acct",a.color);
+    b.setAttribute("aria-pressed",on);
+    b.innerHTML=`<div class="nm"><span class="dot"></span>${a.label}${a.you?'<span class="you">YOU</span>':''}</div>
+      <dl><dt>Total level</dt><dd>${fmt(d.skills.Overall[0])}</dd>
+      <dt>Total XP</dt><dd>${fmt(d.skills.Overall[1])}</dd>
+      <dt>Combat</dt><dd>${combatLevel(d.skills)}</dd>
+      <dt>Log slots</dt><dd>${d.temple?fmt(d.temple.slots[0])+" / "+fmt(d.temple.slots[1])
+        :fmt(d.activities["Collections Logged"]||0)}</dd></dl>
+      ${d.temple?"":'<div class="off-note">collection log not synced (TempleOSRS plugin)</div>'}
+      ${on?"":'<div class="off-note">hidden from comparison — click to restore</div>'}`;
+    b.onclick=()=>{
+      if(on){ if(state.active.length>1) state.active=state.active.filter(k=>k!==a.key); }
+      else state.active=ACCOUNTS.map(x=>x.key).filter(k=>state.active.includes(k)||k===a.key);
+      if(state.sort&&!state.active.includes(state.sort))state.sort=null;
+      save();render();
+    };
+    cardsEl.appendChild(b);
+  }
+}
+
+// --- controls ---
+const tabsEl=document.getElementById("tabs"),modeEl=document.getElementById("mode"),
+      zeroEl=document.getElementById("zeroseg"),searchEl=document.getElementById("search"),
+      rangeWrap=document.getElementById("rangewrap"),rangeBtn=document.getElementById("rangebtn"),
+      calPop=document.getElementById("calpop");
+
+// ---- Adobe-style snapshot range calendar ----
+const SNAP_IDX={};SNAPSHOTS.forEach((s,i)=>SNAP_IDX[s.date]=i);
+const MONTHS=["January","February","March","April","May","June","July","August",
+  "September","October","November","December"];
+let calView=null,pendingStart=null;
+function openCal(){
+  const d=SNAPSHOTS[state.end].date.split("-");
+  calView=new Date(+d[0],+d[1]-1,1);pendingStart=null;
+  calPop.hidden=false;renderCal();
+}
+function closeCal(){calPop.hidden=true;pendingStart=null;}
+rangeBtn.onclick=e=>{e.stopPropagation();calPop.hidden?openCal():closeCal();};
+document.addEventListener("click",e=>{if(!calPop.hidden&&!calPop.contains(e.target))closeCal();});
+document.addEventListener("keydown",e=>{if(e.key==="Escape")closeCal();});
+function pickDay(idx){
+  if(pendingStart===null){pendingStart=idx;renderCal();return;}
+  if(idx===pendingStart){pendingStart=null;renderCal();return;}
+  state.base=Math.min(pendingStart,idx);state.end=Math.max(pendingStart,idx);
+  pendingStart=null;save();closeCal();render();
+}
+function preset(kind){
+  const last=SNAPSHOTS.length-1;
+  if(kind==="all"){state.base=0;state.end=last;}
+  else{
+    const cutoff=new Date(Date.now()-(kind==="7"?7:30)*864e5).toISOString().slice(0,10);
+    let b=0;
+    SNAPSHOTS.forEach((s,i)=>{if(i<last&&s.date<=cutoff)b=i;});
+    state.base=b;state.end=last;
+  }
+  save();closeCal();render();
+}
+function renderCal(){
+  const y=calView.getFullYear(),m=calView.getMonth();
+  const first=(new Date(y,m,1).getDay()+6)%7, days=new Date(y,m+1,0).getDate();
+  const bd=SNAPSHOTS[pendingStart===null?state.base:pendingStart].date,
+        ed=pendingStart===null?SNAPSHOTS[state.end].date:bd;
+  let g=["Mo","Tu","We","Th","Fr","Sa","Su"].map(d=>`<span class="dow">${d}</span>`).join("");
+  for(let i=0;i<first;i++)g+=`<span class="d"></span>`;
+  for(let d=1;d<=days;d++){
+    const key=`${y}-${String(m+1).padStart(2,"0")}-${String(d).padStart(2,"0")}`;
+    const idx=SNAP_IDX[key];
+    let cls="d";
+    if(idx!==undefined){
+      cls+=" snap";
+      if(key===bd||key===ed)cls+=" sel";
+      else if(key>bd&&key<ed)cls+=" inrange";
+    }else if(key>bd&&key<ed)cls+=" inrange";
+    g+=`<span class="${cls}"${idx!==undefined?` data-i="${idx}"`:""}>${d}</span>`;
+  }
+  calPop.innerHTML=`
+    <div class="presets"><span class="pt">Presets</span>
+      <button data-p="7">Last 7 days</button>
+      <button data-p="30">Last 30 days</button>
+      <button data-p="all">All time</button></div>
+    <div class="cal">
+      <div class="mhead"><button data-nav="-1">‹</button>
+        <b>${MONTHS[m]} ${y}</b><button data-nav="1">›</button></div>
+      <div class="grid">${g}</div>
+      <div class="hint">${pendingStart===null?
+        "Highlighted days hold snapshots — click one to start a range.":
+        "Now click the end date (same day cancels)."}</div>
+    </div>`;
+  calPop.querySelectorAll("[data-nav]").forEach(b=>b.onclick=e=>{
+    e.stopPropagation();calView=new Date(y,m+ +b.dataset.nav,1);renderCal();});
+  calPop.querySelectorAll(".d.snap").forEach(el=>el.onclick=e=>{
+    e.stopPropagation();pickDay(+el.dataset.i);});
+  calPop.querySelectorAll("[data-p]").forEach(b=>b.onclick=e=>{
+    e.stopPropagation();preset(b.dataset.p);});
+}
+zeroEl.querySelectorAll("button").forEach(b=>b.onclick=()=>{
+  state.hz=b.dataset.z;save();render();});
+tabsEl.querySelectorAll("button").forEach(b=>b.onclick=()=>{
+  state.tab=b.dataset.tab;state.sort=null;save();render();});
+modeEl.querySelectorAll("button").forEach(b=>b.onclick=()=>{
+  state.mode=b.dataset.mode;save();render();});
+searchEl.addEventListener("input",()=>{state.q=searchEl.value.trim().toLowerCase();renderTable();});
+
+// --- table ---
+const headEl=document.getElementById("headrow"),bodyEl=document.getElementById("body");
+function acts(){return ACCOUNTS.filter(a=>state.active.includes(a.key));}
+function compareRows(){
+  const A=acts();
+  let out;
+  if(state.tab==="skills"){
+    out=SKILL_ORDER.map(sk=>({name:sk,
+      vals:A.map(a=>DATA[a.key].skills[sk][state.mode==="xp"?1:0]),
+      lvls:A.map(a=>DATA[a.key].skills[sk][0])}));
+  }else{
+    const list=state.tab==="bosses"?BOSS_LIST:ACTIVITY_LIST;
+    out=list.map(n=>({name:n,vals:A.map(a=>DATA[a.key].activities[n]||0)}));
+    if(state.hz!=="all")out=out.filter(r=>r.vals.some(v=>v>0));
+    out.sort((x,y)=>Math.max(...y.vals)-Math.max(...x.vals));
+  }
+  if(state.sort){
+    const i=A.findIndex(a=>a.key===state.sort);
+    if(i>=0)out.sort((x,y)=>y.vals[i]-x.vals[i]);
+  }
+  if(state.q)out=out.filter(r=>r.name.toLowerCase().includes(state.q));
+  return out;
+}
+function progressRows(){
+  const A=acts(), CUR=SNAPSHOTS[state.end].players, base=SNAPSHOTS[state.base].players;
+  const sk=[],bo=[];
+  for(const s of SKILL_ORDER){
+    const gains=A.map(a=>{
+      const now=CUR[a.key].skills[s],then=(base[a.key]||{skills:{}}).skills[s]||now;
+      return [now[1]-then[1],now[0]-then[0]];  // [xp gain, level gain]
+    });
+    if(gains.some(g=>g[0]>0))sk.push({name:s,vals:gains.map(g=>g[0]),lvls:gains.map(g=>g[1]),kind:"xp"});
+  }
+  const av=[];
+  const names=new Set();
+  for(const a of A){Object.keys(CUR[a.key].activities).forEach(n=>names.add(n));}
+  for(const n of names){
+    const gains=A.map(a=>{
+      const now=CUR[a.key].activities[n]||0,
+            then=(base[a.key]||{activities:{}}).activities[n]||0;
+      return Math.max(0,now-then);
+    });
+    if(gains.some(g=>g>0))(ACTIVITY_SET.has(n)?av:bo).push({name:n,vals:gains,kind:"kc"});
+  }
+  sk.sort((x,y)=>Math.max(...y.vals)-Math.max(...x.vals));
+  bo.sort((x,y)=>Math.max(...y.vals)-Math.max(...x.vals));
+  av.sort((x,y)=>Math.max(...y.vals)-Math.max(...x.vals));
+  // Collection log gains (TempleOSRS-synced accounts only). A first sync sets the
+  // baseline — items only count as gained between two snapshots that both have log data.
+  const cl=[];
+  const slotGains=A.map(a=>{
+    const nowT=CUR[a.key].temple,thenT=(base[a.key]||{}).temple;
+    return nowT&&thenT?Math.max(0,nowT.slots[0]-thenT.slots[0]):0;
+  });
+  if(slotGains.some(g=>g>0))cl.push({name:"Log slots filled",vals:slotGains,kind:"kc"});
+  const flatsNow=A.map(a=>flatItems(CUR[a.key].temple)),
+        flatsThen=A.map(a=>flatItems((base[a.key]||{}).temple));
+  const inames=new Set();
+  flatsNow.forEach(f=>{if(f)Object.keys(f).forEach(n=>inames.add(n));});
+  for(const n of inames){
+    const gains=A.map((a,i)=>{
+      if(!flatsNow[i]||!flatsThen[i])return 0;
+      return Math.max(0,(flatsNow[i][n]||0)-(flatsThen[i][n]||0));
+    });
+    if(gains.some(g=>g>0))cl.push({name:n,vals:gains,kind:"kc"});
+  }
+  cl.sort((x,y)=>x.name==="Log slots filled"?-1:y.name==="Log slots filled"?1:
+    Math.max(...y.vals)-Math.max(...x.vals));
+  let rows=[];
+  if(sk.length)rows.push({head:"Skills — XP gained"},...sk);
+  if(bo.length)rows.push({head:"Bosses — KC gained"},...bo);
+  if(av.length)rows.push({head:"Activities — score gained"},...av);
+  if(cl.length)rows.push({head:"Collection log — new items"},...cl);
+  if(state.q)rows=rows.filter(r=>r.head||r.name.toLowerCase().includes(state.q));
+  return rows;
+}
+function renderHead(A,firstLabel){
+  headEl.innerHTML=`<th${state.sort?"":' class="sorted"'} data-k="">${firstLabel}</th>`+
+    A.map(a=>`<th${state.sort===a.key?' class="sorted"':''} data-k="${a.key}">`+
+      `<span class="dot" style="background:${a.color}"></span>${a.label}</th>`).join("");
+  headEl.querySelectorAll("th").forEach(th=>th.onclick=()=>{
+    state.sort=th.dataset.k||null;save();renderTable();});
+}
+function renderTable(){
+  const A=acts();
+  if(state.tab==="progress"){
+    renderHead(A,"Gained");
+    if(SNAPSHOTS.length<2){
+      bodyEl.innerHTML=`<tr><td class="empty" colspan="${A.length+1}">Only one snapshot so far
+        (${LATEST.label}). Go grind, then ask Claude to refresh the ledger — every refresh becomes
+        a new snapshot and the gains show up here.</td></tr>`;
+      return;
+    }
+    const rows=progressRows();
+    if(!rows.some(r=>!r.head)){
+      bodyEl.innerHTML=`<tr><td class="empty" colspan="${A.length+1}">No gains between
+        ${SNAPSHOTS[state.base].label} and ${SNAPSHOTS[state.end].label} for the accounts shown.</td></tr>`;
+      return;
+    }
+    bodyEl.innerHTML=rows.map(r=>{
+      if(r.head)return `<tr class="grouphead"><td colspan="${A.length+1}">${r.head}</td></tr>`;
+      const max=Math.max(...r.vals),contested=new Set(r.vals).size>1;
+      return `<tr><td class="name">${r.name}</td>`+r.vals.map((v,i)=>{
+        if(v<=0)return `<td class="zero">—</td>`;
+        const cls=["gain"];if(contested&&v===max&&A.length>1)cls.push("lead");
+        let cell="+"+fmt(v);
+        if(r.kind==="xp"&&r.lvls[i]>0)cell+=`<span class="lv">+${r.lvls[i]} lvl</span>`;
+        return `<td class="${cls.join(" ")}">${cell}</td>`;
+      }).join("")+"</tr>";
+    }).join("");
+    return;
+  }
+  if(state.tab==="clog"){renderClog(A);return;}
+  renderHead(A,state.tab==="skills"?"Skill":state.tab==="bosses"?"Boss":"Activity");
+  const out=compareRows();
+  if(!out.length){
+    bodyEl.innerHTML=state.tab==="clog"&&!state.q?
+      `<tr><td class="empty" colspan="${A.length+1}">No account shown here has synced its
+        collection log yet — install the TempleOSRS RuneLite plugin, enable log sync, and open
+        the collection log in game.</td></tr>`:
+      `<tr><td class="empty" colspan="${A.length+1}">No rows match “${searchEl.value}”.</td></tr>`;
+    return;}
+  bodyEl.innerHTML=out.map(r=>{
+    const max=Math.max(...r.vals),contested=r.vals.some(v=>v>0)&&new Set(r.vals).size>1;
+    return `<tr><td class="name">${r.name}</td>`+r.vals.map((v,i)=>{
+      const cls=[];
+      if(v===0)cls.push("zero");
+      else{
+        if(contested&&v===max&&A.length>1)cls.push("lead");
+        if(state.tab==="skills"&&r.lvls[i]===99)cls.push("max99");
+      }
+      let cell=v===0?"—":fmt(v);
+      if(state.tab==="skills"&&state.mode==="level"&&v!==0)
+        cell=`${v}<span class="xp">${fmt(DATA[acts()[i].key].skills[r.name][1])} xp</span>`;
+      return `<td class="${cls.join(" ")}">${cell}</td>`;
+    }).join("")+"</tr>";
+  }).join("");
+}
+function renderClog(A){
+  renderHead(A,"Item");
+  if(!A.some(a=>DATA[a.key].temple)){
+    bodyEl.innerHTML=`<tr><td class="empty" colspan="${A.length+1}">No account shown here has
+      synced its collection log yet — install the TempleOSRS RuneLite plugin, enable log sync,
+      and open the collection log in game.</td></tr>`;
+    return;
+  }
+  const sortIdx=state.sort?A.findIndex(a=>a.key===state.sort):-1;
+  let html="";
+  if(!state.q){
+    const MO=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+    const fmtD=s=>{const[y,m,d]=s.slice(0,10).split("-");
+      return +d+" "+MO[+m-1]+(+y===new Date().getFullYear()?"":" "+y);};
+    const rec=[];
+    A.forEach((a,i)=>{const t=DATA[a.key].temple;
+      if(t&&t.recent)t.recent.forEach(r=>rec.push({name:r[0],date:r[1],notable:r[2],idx:i}));});
+    rec.sort((x,y)=>y.date.localeCompare(x.date));
+    html+=`<tr class="grouphead"><td colspan="${A.length+1}">Recent unlocks</td></tr>`;
+    if(rec.length){
+      html+=rec.slice(0,15).map(r=>
+        `<tr><td class="name">${r.notable?'<span style="color:var(--gold)">★</span> ':""}${r.name}</td>`+
+        A.map((a,i)=>i===r.idx?`<td class="gain">${fmtD(r.date)}</td>`:`<td class="zero"></td>`)
+          .join("")+"</tr>").join("");
+    }else{
+      html+=`<tr><td class="empty" colspan="${A.length+1}">No unlocks since first sync —
+        new collection log drops land here with their dates.</td></tr>`;
+    }
+  }
+  for(const g in CLOGCATS){
+    let ghtml="";
+    for(const slug in CLOGCATS[g]){
+      const total=CLOGCATS[g][slug], cname=catName(slug);
+      const per=A.map(a=>{const t=DATA[a.key].temple;
+        return t?(t.items[slug]||{}):null;});   // null = not synced
+      const has=per.some(m=>m&&Object.keys(m).length);
+      const catMatch=state.q&&cname.toLowerCase().includes(state.q);
+      let names=new Set();
+      per.forEach(m=>{if(m)Object.keys(m).forEach(n=>names.add(n));});
+      let items=[...names];
+      if(state.q&&!catMatch){
+        items=items.filter(n=>n.toLowerCase().includes(state.q));
+        if(!items.length)continue;
+      }else if(!state.q&&state.hz!=="all"&&!has)continue;
+      let rows=items.map(n=>({name:n,vals:per.map(m=>m?(m[n]||0):0)}));
+      rows.sort((x,y)=>sortIdx>=0?y.vals[sortIdx]-x.vals[sortIdx]:
+        Math.max(...y.vals)-Math.max(...x.vals)||x.name.localeCompare(y.name));
+      ghtml+=`<tr class="cathead"><td class="name">${cname}</td>`+
+        per.map((m,i)=>{
+          let kc="";
+          if(CLOG_KC[slug]){
+            const s=CLOG_KC[slug].reduce((t,n)=>t+(DATA[A[i].key].activities[n]||0),0);
+            if(s>0)kc=`<span class="kc">${fmt(s)} kc</span>`;
+          }
+          if(!m)return `<td class="zero">not synced${kc}</td>`;
+          const got=Object.keys(m).length;
+          return `<td class="${got>=total?"done":""}">${got} / ${total}${kc}</td>`;
+        }).join("")+"</tr>";
+      ghtml+=rows.map(r=>{
+        const max=Math.max(...r.vals),contested=r.vals.some(v=>v>0)&&new Set(r.vals).size>1;
+        return `<tr><td class="name">${r.name}</td>`+r.vals.map((v,i)=>{
+          if(v===0)return `<td class="zero">${per[i]?"—":""}</td>`;
+          return `<td class="${contested&&v===max&&A.length>1?"lead":""}">${fmt(v)}</td>`;
+        }).join("")+"</tr>";
+      }).join("");
+    }
+    if(ghtml)html+=`<tr class="grouphead"><td colspan="${A.length+1}">${GROUPLABEL[g]||g}</td></tr>`+ghtml;
+  }
+  bodyEl.innerHTML=html||`<tr><td class="empty" colspan="${A.length+1}">No items match
+    “${searchEl.value}”.</td></tr>`;
+}
+function render(){
+  renderCards();
+  tabsEl.querySelectorAll("button").forEach(b=>b.classList.toggle("on",b.dataset.tab===state.tab));
+  modeEl.hidden=state.tab!=="skills";
+  zeroEl.hidden=state.tab!=="bosses"&&state.tab!=="activities"&&state.tab!=="clog";
+  zeroEl.querySelectorAll("button").forEach(b=>b.classList.toggle("on",b.dataset.z===(state.hz==="all"?"all":"hide")));
+  rangeWrap.hidden=state.tab!=="progress"||SNAPSHOTS.length<2;
+  if(!rangeWrap.hidden)
+    rangeBtn.innerHTML=`📅 ${SNAPSHOTS[state.base].label} → ${SNAPSHOTS[state.end].label}`+
+      `${state.end===SNAPSHOTS.length-1?" (latest)":""}<span class="caret">▼</span>`;
+  modeEl.querySelectorAll("button").forEach(b=>b.classList.toggle("on",b.dataset.mode===state.mode));
+  renderTable();
+}
+render();
+</script>

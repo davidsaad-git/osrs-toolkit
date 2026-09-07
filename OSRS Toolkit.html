@@ -1,0 +1,1451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>OSRS Toolkit</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+
+:root{
+  --ground:#16120d; --panel:#211b13; --panel2:#2a2318; --panel3:#332a1c;
+  --border:#4d3d24; --border-soft:#3a2f1d;
+  --ink:#e9dcbe; --muted:#a08c66; --faint:#6f6047;
+  --gold:#f5c235; --green:#9ad24b; --red:#e0674f; --blue:#7fb8d9;
+  --c-davo:#f5c235; --c-dog:#9ad24b; --c-arch:#e08e45;
+  --display:'Cinzel',Georgia,serif;
+  --sans:'IBM Plex Sans',system-ui,sans-serif;
+  --mono:'IBM Plex Mono',Consolas,monospace;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{background:var(--ground);color:var(--ink);font-family:var(--sans);margin:0;
+  font-size:14px;line-height:1.5}
+nav{position:sticky;top:0;z-index:10;background:var(--ground);
+  border-bottom:2px solid var(--border);display:flex;gap:2px;
+  padding:10px 16px 0;overflow-x:auto}
+nav .brand{font-family:var(--display);font-weight:700;font-size:15px;color:var(--gold);
+  letter-spacing:.03em;padding:8px 14px 10px 0;white-space:nowrap}
+nav button{font:inherit;font-size:13.5px;font-weight:500;color:var(--muted);
+  background:none;border:none;border-bottom:3px solid transparent;
+  padding:8px 14px 10px;cursor:pointer;white-space:nowrap}
+nav button:hover{color:var(--ink)}
+nav button.on{color:var(--gold);border-bottom-color:var(--gold)}
+nav button:focus-visible{outline:2px solid var(--gold);outline-offset:-2px}
+
+/* ---- ledger ---- */
+
+
+
+#t-ledger [hidden]{display:none!important}
+
+
+#t-ledger .wrap{max-width:880px;margin:0 auto;padding:28px 20px 64px}
+
+
+#t-ledger header{display:flex;align-items:baseline;justify-content:space-between;flex-wrap:wrap;
+  gap:4px 16px;border-bottom:2px solid var(--border);padding-bottom:14px;margin-bottom:20px}
+
+#t-ledger h1{font-family:var(--display);font-weight:700;font-size:26px;margin:0;letter-spacing:.02em;
+  color:var(--gold);text-wrap:balance}
+
+#t-ledger h1 .sub{color:var(--ink)}
+
+#t-ledger .snapdate{font-family:var(--mono);font-size:12px;color:var(--muted)}
+
+#t-ledger .snapdate b{color:var(--ink);font-weight:500}
+
+
+#t-ledger .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px;margin-bottom:20px}
+
+#t-ledger .card{background:var(--panel);border:1px solid var(--border-soft);border-radius:6px;
+  padding:12px 14px;cursor:pointer;text-align:left;font:inherit;color:inherit;
+  border-top:3px solid var(--acct);transition:background .12s, border-color .12s}
+
+#t-ledger .card:hover{background:var(--panel2)}
+
+#t-ledger .card:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+
+#t-ledger .card.off{opacity:.45;border-top-color:var(--border-soft)}
+
+#t-ledger .card .nm{font-family:var(--display);font-weight:600;font-size:15px;letter-spacing:.02em;
+  display:flex;align-items:center;gap:8px;margin-bottom:8px}
+
+#t-ledger .card .dot{width:9px;height:9px;border-radius:50%;background:var(--acct);flex:none}
+
+#t-ledger .card .you{font-family:var(--sans);font-size:10px;font-weight:600;letter-spacing:.08em;
+  color:var(--ground);background:var(--acct);border-radius:3px;padding:1px 5px;margin-left:auto}
+
+#t-ledger .card dl{display:grid;grid-template-columns:auto 1fr;gap:2px 12px;margin:0}
+
+#t-ledger .card dt{color:var(--muted);font-size:12px}
+
+#t-ledger .card dd{margin:0;text-align:right;font-family:var(--mono);font-size:12.5px;font-variant-numeric:tabular-nums}
+
+#t-ledger .card .off-note{font-size:11px;color:var(--faint);margin-top:6px}
+
+
+#t-ledger .controls{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-bottom:14px}
+
+#t-ledger .tabs{display:flex;border:1px solid var(--border);border-radius:5px;overflow:hidden}
+
+#t-ledger .tabs button{font:inherit;font-weight:500;color:var(--muted);background:var(--panel);
+  border:none;padding:7px 16px;cursor:pointer}
+
+#t-ledger .tabs button + button{border-left:1px solid var(--border-soft)}
+
+#t-ledger .tabs button.on{background:var(--panel3);color:var(--gold)}
+
+#t-ledger .tabs button:focus-visible{outline:2px solid var(--gold);outline-offset:-2px}
+
+#t-ledger .seg{display:flex;border:1px solid var(--border-soft);border-radius:5px;overflow:hidden}
+
+#t-ledger .seg button{font:inherit;font-size:12.5px;color:var(--muted);background:var(--panel);
+  border:none;padding:6px 12px;cursor:pointer}
+
+#t-ledger .seg button + button{border-left:1px solid var(--border-soft)}
+
+#t-ledger .seg button.on{background:var(--panel3);color:var(--ink)}
+
+#t-ledger .seg button:focus-visible{outline:2px solid var(--gold);outline-offset:-2px}
+
+#t-ledger .range{position:relative}
+
+#t-ledger #rangebtn{font:inherit;font-size:12.5px;color:var(--ink);background:var(--panel);
+  border:1px solid var(--border-soft);border-radius:5px;padding:6px 11px;cursor:pointer;
+  display:flex;align-items:center;gap:8px;font-variant-numeric:tabular-nums}
+
+#t-ledger #rangebtn:hover{border-color:var(--gold)}
+
+#t-ledger #rangebtn .caret{color:var(--faint);font-size:9px}
+
+#t-ledger #calpop{position:absolute;top:calc(100% + 6px);left:0;z-index:30;background:var(--panel2);
+  border:1px solid var(--border);border-radius:6px;padding:12px;
+  box-shadow:0 10px 28px rgba(0,0,0,.55);display:flex;gap:14px}
+
+#t-ledger #calpop .presets{display:flex;flex-direction:column;gap:4px;
+  border-right:1px solid var(--border-soft);padding-right:12px}
+
+#t-ledger #calpop .presets .pt{font-size:10px;font-weight:600;letter-spacing:.07em;
+  text-transform:uppercase;color:var(--faint);margin-bottom:2px}
+
+#t-ledger #calpop .presets button{font:inherit;font-size:12px;text-align:left;color:var(--muted);
+  background:none;border:none;border-radius:4px;padding:5px 9px;cursor:pointer;white-space:nowrap}
+
+#t-ledger #calpop .presets button:hover{background:var(--panel3);color:var(--gold)}
+
+#t-ledger .cal{width:226px}
+
+#t-ledger .cal .mhead{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+
+#t-ledger .cal .mhead b{font-size:12.5px;font-weight:600;font-family:var(--sans)}
+
+#t-ledger .cal .mhead button{font:inherit;color:var(--muted);background:none;
+  border:1px solid var(--border-soft);border-radius:4px;width:22px;height:22px;
+  cursor:pointer;line-height:1;padding:0}
+
+#t-ledger .cal .mhead button:hover{color:var(--gold);border-color:var(--gold)}
+
+#t-ledger .cal .grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;
+  font-family:var(--mono);font-size:11.5px;text-align:center}
+
+#t-ledger .cal .dow{color:var(--faint);font-size:10px;padding:2px 0}
+
+#t-ledger .cal .d{padding:5px 0;border-radius:4px;color:var(--faint)}
+
+#t-ledger .cal .d.snap{color:var(--ink);cursor:pointer;background:var(--panel3);font-weight:600}
+
+#t-ledger .cal .d.snap:hover{outline:1px solid var(--gold)}
+
+#t-ledger .cal .d.inrange{background:var(--border-soft)}
+
+#t-ledger .cal .d.sel{background:var(--gold);color:var(--ground)}
+
+#t-ledger .cal .hint{margin-top:8px;font-size:10.5px;color:var(--faint);font-family:var(--sans)}
+
+#t-ledger #search{font:inherit;font-size:13px;color:var(--ink);background:var(--panel);
+  border:1px solid var(--border-soft);border-radius:5px;padding:7px 11px;flex:1;min-width:140px}
+
+#t-ledger #search::placeholder{color:var(--faint)}
+
+#t-ledger #search:focus{outline:none;border-color:var(--gold)}
+
+
+#t-ledger .tablebox{border:1px solid var(--border-soft);border-radius:6px;background:var(--panel)}
+
+@media (max-width:640px){#t-ledger .tablebox{overflow-x:auto}
+}
+#t-ledger table{border-collapse:collapse;width:100%;min-width:520px}
+
+#t-ledger th,#t-ledger td{padding:7px 14px;white-space:nowrap}
+
+#t-ledger thead th{font-size:11px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;
+  color:var(--muted);background:var(--panel2);border-bottom:1px solid var(--border);
+  text-align:right;cursor:pointer;user-select:none;
+  position:sticky;top:var(--stickytop,0px);z-index:2}
+
+#t-ledger thead th:first-child{text-align:left}
+
+#t-ledger thead th:hover{color:var(--ink)}
+
+#t-ledger thead th.sorted{color:var(--gold)}
+
+#t-ledger thead th .dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:6px;
+  vertical-align:1px}
+
+#t-ledger tbody td{border-bottom:1px solid var(--border-soft);font-family:var(--mono);
+  font-size:13px;font-variant-numeric:tabular-nums;text-align:right;color:var(--muted)}
+
+#t-ledger tbody tr:last-child td{border-bottom:none}
+
+#t-ledger tbody tr:hover td{background:var(--panel2)}
+
+#t-ledger tbody td.name{font-family:var(--sans);text-align:left;color:var(--ink);font-size:13.5px}
+
+#t-ledger tbody td.lead{color:var(--gold);font-weight:600}
+
+#t-ledger tbody td.lead::after{content:" ♛";font-size:10px}
+
+#t-ledger tbody td.max99{color:var(--green)}
+
+#t-ledger tbody td.zero{color:var(--faint)}
+
+#t-ledger tbody td.gain{color:var(--green)}
+
+#t-ledger tbody tr.grouphead td{font-family:var(--sans);font-size:11px;font-weight:600;
+  letter-spacing:.07em;text-transform:uppercase;color:var(--gold);background:var(--panel2);
+  text-align:left;cursor:default}
+
+#t-ledger tbody tr.cathead td{background:var(--panel3);border-bottom-color:var(--border)}
+
+#t-ledger tbody tr.cathead td.name{font-weight:600}
+
+#t-ledger tbody tr.cathead td:not(.name){font-size:11.5px}
+
+#t-ledger tbody tr.cathead td.done{color:var(--green)}
+
+#t-ledger tbody tr.cathead .kc{display:inline-block;margin-left:9px;padding:1px 7px;border-radius:99px;
+  background:var(--ground);border:1px solid var(--border);color:var(--gold);
+  font-size:11.5px;font-weight:600}
+
+#t-ledger td .xp{color:var(--faint);font-size:11px;margin-left:6px}
+
+#t-ledger td .lv{color:var(--gold);font-size:11px;margin-left:6px}
+
+#t-ledger .empty{padding:28px;text-align:center;color:var(--faint)}
+
+#t-ledger footer{margin-top:16px;font-size:12px;color:var(--faint);line-height:1.6}
+
+#t-ledger footer b{color:var(--muted);font-weight:500}
+
+@media (max-width:560px){ #t-ledger th,#t-ledger td{padding:7px 9px}
+ #t-ledger .wrap{padding:20px 12px 48px}
+ }
+/* ---- oracle ---- */
+
+
+
+
+#t-oracle .wrap{max-width:880px;margin:0 auto;padding:28px 20px 64px}
+
+#t-oracle header{border-bottom:2px solid var(--border);padding-bottom:14px;margin-bottom:20px;
+  display:flex;align-items:baseline;justify-content:space-between;flex-wrap:wrap;gap:4px 16px}
+
+#t-oracle h1{font-family:var(--display);font-weight:700;font-size:26px;margin:0;color:var(--gold);
+  letter-spacing:.02em}
+
+#t-oracle .tagline{font-family:var(--mono);font-size:12px;color:var(--muted)}
+
+
+#t-oracle .grid{display:grid;grid-template-columns:minmax(260px,340px) 1fr;gap:16px;align-items:start}
+
+@media (max-width:680px){#t-oracle .grid{grid-template-columns:1fr}
+}
+#t-oracle .pane{background:var(--panel);border:1px solid var(--border-soft);border-radius:6px;padding:16px}
+
+#t-oracle label{display:block;font-size:11px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;
+  color:var(--muted);margin:14px 0 5px}
+
+#t-oracle label:first-child{margin-top:0}
+
+#t-oracle select,#t-oracle input[type=number]{width:100%;font:inherit;font-size:13.5px;color:var(--ink);
+  background:var(--panel2);border:1px solid var(--border-soft);border-radius:5px;padding:8px 10px}
+
+#t-oracle select:focus,#t-oracle input:focus{outline:none;border-color:var(--gold)}
+
+#t-oracle input[type=number]{font-family:var(--mono);font-variant-numeric:tabular-nums}
+
+#t-oracle .chips{display:flex;gap:6px;flex-wrap:wrap}
+
+#t-oracle .chips button{font:inherit;font-size:12.5px;color:var(--muted);background:var(--panel2);
+  border:1px solid var(--border-soft);border-radius:99px;padding:5px 12px;cursor:pointer}
+
+#t-oracle .chips button.on{color:var(--ground);background:var(--gold);border-color:var(--gold);font-weight:600}
+
+#t-oracle .chips button:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+
+#t-oracle .hint{font-size:11.5px;color:var(--faint);margin-top:4px}
+
+#t-oracle .customrow{display:flex;align-items:center;gap:8px}
+
+#t-oracle .customrow span{font-family:var(--mono);color:var(--muted)}
+
+
+#t-oracle .verdict{font-family:var(--display);font-weight:700;font-size:30px;letter-spacing:.03em;
+  margin:0 0 2px;color:var(--verdict,var(--gold));text-wrap:balance}
+
+#t-oracle .verdictsub{color:var(--muted);margin:0 0 16px;font-size:13.5px}
+
+#t-oracle .meter{height:10px;border:1px solid var(--border);border-radius:99px;background:var(--panel2);
+  overflow:hidden;margin-bottom:6px}
+
+#t-oracle .meter i{display:block;height:100%;background:linear-gradient(90deg,var(--red),var(--gold) 50%,var(--green));
+  width:var(--w,0%);transition:width .4s}
+
+#t-oracle .meterlab{display:flex;justify-content:space-between;font-size:10.5px;color:var(--faint);
+  font-family:var(--mono);margin-bottom:18px}
+
+#t-oracle .stats{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+
+@media (max-width:480px){#t-oracle .stats{grid-template-columns:1fr}
+}
+#t-oracle .stat{background:var(--panel2);border:1px solid var(--border-soft);border-radius:5px;padding:10px 12px}
+
+#t-oracle .stat .k{font-size:11px;color:var(--muted);letter-spacing:.05em;text-transform:uppercase}
+
+#t-oracle .stat .v{font-family:var(--mono);font-size:17px;font-variant-numeric:tabular-nums;margin-top:2px}
+
+#t-oracle .stat .v small{font-size:11px;color:var(--faint)}
+
+#t-oracle .miles{margin:18px 0 0;padding:0;list-style:none;font-size:13px;color:var(--muted)}
+
+#t-oracle .miles li{display:flex;justify-content:space-between;gap:12px;padding:5px 0;
+  border-top:1px solid var(--border-soft)}
+
+#t-oracle .miles b{font-family:var(--mono);font-weight:500;color:var(--ink);font-variant-numeric:tabular-nums}
+
+#t-oracle .miles .hit b{color:var(--green)}
+
+#t-oracle footer{margin-top:16px;font-size:12px;color:var(--faint);line-height:1.6}
+
+#t-oracle footer b{color:var(--muted);font-weight:500}
+
+/* ---- upgrade ---- */
+
+
+
+
+#t-upgrade .wrap{max-width:880px;margin:0 auto;padding:28px 20px 64px}
+
+#t-upgrade header{border-bottom:2px solid var(--border);padding-bottom:14px;margin-bottom:18px;
+  display:flex;align-items:baseline;justify-content:space-between;flex-wrap:wrap;gap:4px 16px}
+
+#t-upgrade h1{font-family:var(--display);font-weight:700;font-size:26px;margin:0;color:var(--gold);
+  letter-spacing:.02em}
+
+#t-upgrade .tagline{font-family:var(--mono);font-size:12px;color:var(--muted)}
+
+
+#t-upgrade .summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin-bottom:18px}
+
+#t-upgrade .sum{background:var(--panel);border:1px solid var(--border-soft);border-radius:6px;padding:11px 14px}
+
+#t-upgrade .sum .k{font-size:11px;color:var(--muted);letter-spacing:.06em;text-transform:uppercase}
+
+#t-upgrade .sum .v{font-family:var(--mono);font-size:18px;font-variant-numeric:tabular-nums;margin-top:2px}
+
+#t-upgrade .sum .v.green{color:var(--green)}
+
+#t-upgrade .sum .v.gold{color:var(--gold)}
+
+
+#t-upgrade .controls{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:14px;align-items:center}
+
+#t-upgrade .seg{display:flex;border:1px solid var(--border-soft);border-radius:5px;overflow:hidden}
+
+#t-upgrade .seg button{font:inherit;font-size:12.5px;color:var(--muted);background:var(--panel);
+  border:none;padding:6px 12px;cursor:pointer}
+
+#t-upgrade .seg button + button{border-left:1px solid var(--border-soft)}
+
+#t-upgrade .seg button.on{background:var(--panel3);color:var(--ink)}
+
+#t-upgrade .seg button:focus-visible{outline:2px solid var(--gold);outline-offset:-2px}
+
+
+#t-upgrade section{margin-bottom:22px}
+
+#t-upgrade h2{font-family:var(--display);font-weight:600;font-size:16px;letter-spacing:.04em;
+  color:var(--gold);margin:0 0 2px;display:flex;align-items:baseline;gap:10px}
+
+#t-upgrade h2 .sub{font-family:var(--mono);font-size:11.5px;color:var(--faint);font-weight:400}
+
+#t-upgrade .items{border:1px solid var(--border-soft);border-radius:6px;overflow:hidden;background:var(--panel)}
+
+#t-upgrade .item{display:grid;grid-template-columns:auto 1fr auto;gap:4px 12px;align-items:center;
+  padding:9px 14px;border-bottom:1px solid var(--border-soft);cursor:pointer}
+
+#t-upgrade .item:last-child{border-bottom:none}
+
+#t-upgrade .item:hover{background:var(--panel2)}
+
+#t-upgrade .item input{width:16px;height:16px;accent-color:var(--gold);cursor:pointer}
+
+#t-upgrade .item .nm{font-size:13.5px}
+
+#t-upgrade .item .note{grid-column:2/4;font-size:11.5px;color:var(--faint);margin-top:-3px}
+
+#t-upgrade .item .pr{font-family:var(--mono);font-size:13px;font-variant-numeric:tabular-nums;
+  color:var(--muted);text-align:right;white-space:nowrap}
+
+#t-upgrade .item.owned .nm{color:var(--faint);text-decoration:line-through}
+
+#t-upgrade .item.owned .pr{color:var(--green);text-decoration:none}
+
+#t-upgrade .item.owned .pr::after{content:" ✓"}
+
+#t-upgrade .item .tag{display:inline-block;font-size:9.5px;font-weight:600;letter-spacing:.07em;
+  border-radius:3px;padding:1px 5px;margin-left:7px;vertical-align:1px;
+  color:var(--ground);background:var(--gold)}
+
+#t-upgrade .item .tag.lux{background:var(--panel3);color:var(--muted);border:1px solid var(--border-soft)}
+
+#t-upgrade footer{margin-top:8px;font-size:12px;color:var(--faint);line-height:1.6}
+
+#t-upgrade footer b{color:var(--muted);font-weight:500}
+
+/* ---- toa ---- */
+
+
+
+
+#t-toa .wrap{max-width:940px;margin:0 auto;padding:28px 20px 64px}
+
+#t-toa header{border-bottom:2px solid var(--border);padding-bottom:14px;margin-bottom:20px;
+  display:flex;align-items:baseline;justify-content:space-between;flex-wrap:wrap;gap:4px 16px}
+
+#t-toa h1{font-family:var(--display);font-weight:700;font-size:26px;margin:0;color:var(--gold);
+  letter-spacing:.02em}
+
+#t-toa .tagline{font-family:var(--mono);font-size:12px;color:var(--muted)}
+
+
+#t-toa .cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:14px}
+
+#t-toa .room{background:var(--panel);border:1px solid var(--border-soft);border-radius:6px;
+  padding:14px 16px;border-top:3px solid var(--accent,var(--border))}
+
+#t-toa .room h2{font-family:var(--display);font-weight:600;font-size:16px;margin:0 0 2px;
+  color:var(--accent,var(--gold));letter-spacing:.03em;display:flex;align-items:baseline;
+  justify-content:space-between;gap:8px}
+
+#t-toa .room h2 .style{font-family:var(--mono);font-size:10.5px;color:var(--muted);letter-spacing:.05em}
+
+#t-toa .room ul{margin:8px 0 0;padding-left:17px}
+
+#t-toa .room li{margin-bottom:5px;color:var(--muted)}
+
+#t-toa .room li b{color:var(--ink);font-weight:500}
+
+#t-toa .room li .warn{color:var(--red);font-weight:600}
+
+#t-toa .room li .pray{color:var(--blue)}
+
+#t-toa .sect{font-family:var(--display);font-weight:600;font-size:14px;letter-spacing:.08em;
+  text-transform:uppercase;color:var(--faint);margin:26px 0 10px}
+
+#t-toa .sect:first-of-type{margin-top:0}
+
+
+#t-toa .invos{background:var(--panel);border:1px solid var(--border-soft);border-radius:6px;padding:14px 16px}
+
+#t-toa .invos h3{font-family:var(--display);font-size:14px;color:var(--gold);margin:0 0 6px}
+
+#t-toa .invos p{margin:0 0 10px;font-size:12.5px;color:var(--muted)}
+
+#t-toa .pills{display:flex;flex-wrap:wrap;gap:6px}
+
+#t-toa .pills span{font-family:var(--mono);font-size:11.5px;background:var(--panel2);
+  border:1px solid var(--border-soft);border-radius:99px;padding:3px 10px;color:var(--ink)}
+
+#t-toa .pills span.off{color:var(--faint);text-decoration:line-through}
+
+#t-toa footer{margin-top:18px;font-size:12px;color:var(--faint);line-height:1.6}
+
+#t-toa footer b{color:var(--muted);font-weight:500}
+
+
+</style>
+</head>
+<body>
+<nav><span class="brand">OSRS Toolkit</span><button data-t="ledger">⚔️ Ledger</button><button data-t="oracle">🎲 Drop Oracle</button><button data-t="upgrade">🗡️ Upgrades</button><button data-t="toa">🏺 ToA Notes</button></nav>
+<div id="t-ledger" class="tool" hidden>
+<div class="wrap">
+<header>
+  <h1>Papa Davo's Ledger <span class="sub">· Group Hiscores</span></h1>
+  <div class="snapdate">snapshot <b id="snapdate"></b> · official OSRS hiscores</div>
+</header>
+
+<div class="cards" id="cards"></div>
+
+<div class="controls">
+  <div class="tabs" id="tabs" role="tablist">
+    <button data-tab="skills" role="tab">Skills</button>
+    <button data-tab="bosses" role="tab">Bosses</button>
+    <button data-tab="activities" role="tab">Activities</button>
+    <button data-tab="clog" role="tab">Collection Log</button>
+    <button data-tab="progress" role="tab">Progress</button>
+  </div>
+  <div class="seg" id="mode" hidden>
+    <button data-mode="level">Levels</button>
+    <button data-mode="xp">XP</button>
+  </div>
+  <div class="seg" id="zeroseg" hidden>
+    <button data-z="hide">Hide untouched</button>
+    <button data-z="all">Show all</button>
+  </div>
+  <div class="range" id="rangewrap" hidden>
+    <button id="rangebtn" aria-haspopup="dialog"></button>
+    <div id="calpop" hidden></div>
+  </div>
+  <input id="search" type="search" placeholder="Filter rows… e.g. zulrah, slayer">
+</div>
+
+<div class="tablebox"><table>
+  <thead><tr id="headrow"></tr></thead>
+  <tbody id="body"></tbody>
+</table></div>
+
+<footer>
+  Click a character card to include or exclude it from the comparison. Click a column header to
+  sort by that account; click the first column to restore default order. <b>♛</b> marks the row
+  leader among the accounts shown, <b style="color:var(--green)">green</b> is a 99.
+  Bosses and Activities cover the complete official hiscores roster — "Show all" reveals
+  everything nobody has touched yet. (Monsters like Tormented Demons aren't on Jagex's hiscores —
+  their progress shows up via collection log items instead, once an account has synced with the
+  TempleOSRS RuneLite plugin.) The <b>Progress</b> tab compares snapshots — skills, bosses,
+  activities, and new collection log items all in one place. Ask Claude to refresh the ledger any
+  time; each refresh becomes a new point to diff against.
+</footer>
+</div>
+</div><div id="t-oracle" class="tool" hidden>
+<div class="wrap">
+<header>
+  <h1>The Drop Oracle</h1>
+  <div class="tagline">dry, or deserved? · rates from the OSRS Wiki · KCs from 6 Sep 2026 hiscores</div>
+</header>
+
+<div class="grid">
+<div class="pane">
+  <label>Whose kill count?</label>
+  <div class="chips" id="who"></div>
+  <label for="boss">Boss</label>
+  <select id="boss"></select>
+  <label for="drop">Drop</label>
+  <select id="drop"></select>
+  <div id="customwrap" hidden>
+    <label for="rate">Drop rate</label>
+    <div class="customrow"><span>1 /</span><input type="number" id="rate" min="2" value="512"></div>
+  </div>
+  <label for="kc">Kill count</label>
+  <input type="number" id="kc" min="0" value="0">
+  <div class="hint" id="kchint"></div>
+  <label for="got">Copies received</label>
+  <input type="number" id="got" min="0" value="0">
+</div>
+
+<div class="pane">
+  <p class="verdict" id="verdict">—</p>
+  <p class="verdictsub" id="verdictsub"></p>
+  <div class="meter"><i id="meterbar"></i></div>
+  <div class="meterlab"><span>cursed</span><span>on rate</span><span>spooned</span></div>
+  <div class="stats">
+    <div class="stat"><div class="k">Expected by now</div><div class="v" id="s-exp">—</div></div>
+    <div class="stat"><div class="k">You have</div><div class="v" id="s-got">—</div></div>
+    <div class="stat"><div class="k">Luck percentile</div><div class="v" id="s-pct">—</div></div>
+    <div class="stat"><div class="k">This dry or worse</div><div class="v" id="s-odds">—</div></div>
+  </div>
+  <ul class="miles" id="miles"></ul>
+</div>
+</div>
+
+<footer>
+  Percentile = share of players with your KC who would have <b>more</b> copies than you (higher is
+  luckier). Rates are effective per-kill rates from the wiki; DT2 vestiges use a hidden 3-roll
+  system, so treat those as approximations. Royal Titans rates assume full damage (solo) — in a
+  duo they scale with your share. Ask Claude to refresh KCs or add bosses/drops.
+</footer>
+</div>
+</div><div id="t-upgrade" class="tool" hidden>
+<div class="wrap">
+<header>
+  <h1>Davo's Upgrade Path</h1>
+  <div class="tagline">GE prices from <b>7 Sep 2026</b> · tick what you own — it's remembered</div>
+</header>
+
+<div class="summary">
+  <div class="sum"><div class="k">Still to buy</div><div class="v gold" id="t-left">—</div></div>
+  <div class="sum"><div class="k">Owned value</div><div class="v green" id="t-own">—</div></div>
+  <div class="sum"><div class="k">Items ticked</div><div class="v" id="t-count">—</div></div>
+</div>
+
+<div class="controls">
+  <div class="seg" id="view">
+    <button data-v="all">Everything</button>
+    <button data-v="todo">Still needed</button>
+    <button data-v="core">Core picks only</button>
+  </div>
+</div>
+
+<div id="sections"></div>
+
+<footer>
+  <b>CORE</b> = the value picks that carry your PvM given your stats; untagged = solid but
+  situational; <b>LUX</b> = endgame luxury. Ferocious gloves are priced as hydra leather and
+  Emberlight as a tormented synapse (the tradeable components). Crystal armour for a bowfa setup
+  needs <b>6 armour seeds</b> (helm 1 / legs 2 / body 3) — the listed price is per seed.
+  Prices move — ask Claude to refresh them, or to re-tier this list once you've told it what you own.
+</footer>
+</div>
+</div><div id="t-toa" class="tool" hidden>
+<div class="wrap">
+<header>
+  <h1>ToA Field Notes</h1>
+  <div class="tagline">expert-mode quick reference · keep on the second monitor</div>
+</header>
+
+<div class="sect">Invocations</div>
+<div class="cols" style="grid-template-columns:repeat(auto-fit,minmax(340px,1fr))">
+  <div class="invos">
+    <h3>Comfortable expert (~300)</h3>
+    <p>The standard "everything useful, nothing evil" loadout. Verify the total in the lobby.</p>
+    <div class="pills"><span>Softcore Run</span><span>Walk for It</span><span>Pathseeker</span>
+    <span>Need Less Help?</span><span>On a Diet</span><span>Dehydration</span>
+    <span>Lively Larvae</span><span>More Overlords</span><span>Blowing Mud</span>
+    <span>Medic</span><span>Aerial Assault</span><span>Not Just a Head</span>
+    <span>Arterial Spray</span><span>Blood Thinners</span><span>Upset Stomach</span>
+    <span>Mind the Gap!</span><span>Gotta Have Faith</span><span>Jungle Japes</span>
+    <span>Shaking Things Up</span><span>Boulderdash</span></div>
+  </div>
+  <div class="invos">
+    <h3>Invocations to avoid until comfy</h3>
+    <p>Each of these changes how a room plays, not just the numbers.</p>
+    <div class="pills"><span class="off">Quiet Prayers / Deadly Prayers</span>
+    <span class="off">Overly Draining</span><span class="off">Keep Back</span>
+    <span class="off">Stay Vigilant</span><span class="off">Feeling Special?</span>
+    <span class="off">Double Trouble</span><span class="off">Insanity</span></div>
+  </div>
+</div>
+
+<div class="sect">Path of Crondis &amp; Zebak</div>
+<div class="cols">
+  <div class="room" style="--accent:var(--green)">
+    <h2>Crondis puzzle <span class="style">agility</span></h2>
+    <ul>
+      <li>Fill the container at the waterfall, water the <b>palm tree</b> before the timer empties.</li>
+      <li>Zig-zag past crocodiles — getting caught <span class="warn">spills water</span>.</li>
+      <li>Run energy room — save stamina sips for the boss.</li>
+    </ul>
+  </div>
+  <div class="room" style="--accent:var(--green)">
+    <h2>Zebak <span class="style">ranged</span></h2>
+    <ul>
+      <li><b>Blood clouds heal him</b> — kill them the moment they spawn.</li>
+      <li>Roar wave: <b>jump with the rocks</b> or eat the stun; acid trail blocks tiles.</li>
+      <li>Boulders push you — don't get shoved into acid.</li>
+      <li>Enrage: faster waves + more acid. Save a <b>salt refresh</b> for it.</li>
+    </ul>
+  </div>
+</div>
+
+<div class="sect">Path of Scabaras &amp; Kephri</div>
+<div class="cols">
+  <div class="room" style="--accent:var(--gold)">
+    <h2>Scabaras puzzle <span class="style">brain</span></h2>
+    <ul>
+      <li>Addition puzzle: stand on tiles summing to the target number.</li>
+      <li>Matching: flip and pair the symbols — memorize before flipping.</li>
+      <li>Fastest path room in the raid — bank the time here.</li>
+    </ul>
+  </div>
+  <div class="room" style="--accent:var(--gold)">
+    <h2>Kephri <span class="style">melee (stab)</span></h2>
+    <ul>
+      <li>Shield up = DPS the <b>exploding scarabs into her</b> phase; dung attack arcs — move off the splat tile.</li>
+      <li>Swarm phase: <span class="pray">Protect from Melee</span>, step away from exploders.</li>
+      <li><b>Arcane scarabs heal her shield</b> — kill them first every wave.</li>
+      <li>Fireball barrage: keep moving diagonally; never stand still.</li>
+    </ul>
+  </div>
+</div>
+
+<div class="sect">Path of Apmeken &amp; Ba-Ba</div>
+<div class="cols">
+  <div class="room" style="--accent:var(--red)">
+    <h2>Apmeken puzzle <span class="style">chaos</span></h2>
+    <ul>
+      <li>Pillar room: match the sense (sight/smell/hearing) to the correct pillar.</li>
+      <li><b>Volatile monkeys explode</b> — off-tile before the bar fills; cursed ones drain prayer.</li>
+      <li>Solo: do the vents in a fixed order and keep moving.</li>
+    </ul>
+  </div>
+  <div class="room" style="--accent:var(--red)">
+    <h2>Ba-Ba <span class="style">melee</span></h2>
+    <ul>
+      <li>Boulder roll: stand in the <b>gap in the boulder line</b>.</li>
+      <li>Sarcophagus slam drops rubble — <span class="warn">don't attack through falling rocks</span>.</li>
+      <li>Baboon waves: kill smalls fast (shadow baboons drain prayer, volatile explode).</li>
+      <li>Edge shove attack: stand off the pit line when she winds up.</li>
+    </ul>
+  </div>
+</div>
+
+<div class="sect">Path of Het &amp; Akkha</div>
+<div class="cols">
+  <div class="room" style="--accent:var(--blue)">
+    <h2>Het puzzle <span class="style">mirrors</span></h2>
+    <ul>
+      <li>Pick up the <b>shield</b> first — orb beam chunks you without it.</li>
+      <li>Rotate mirrors to route the light beam to the statue; mine rubble in the way.</li>
+      <li>Drop the shield before leaving — it's room-only.</li>
+    </ul>
+  </div>
+  <div class="room" style="--accent:var(--blue)">
+    <h2>Akkha <span class="style">magic</span></h2>
+    <ul>
+      <li>Match <span class="pray">protection prayer</span> to his style — he swaps after every special.</li>
+      <li>Quadrant specials: hug the current quadrant edge, sidestep the elemental orbs.</li>
+      <li>Memory special: repeat the flashed sequence — <b>walk it calmly</b>, it's not a DPS race.</li>
+      <li>Final phase: detonating orbs sweep the room — count lanes before committing.</li>
+    </ul>
+  </div>
+</div>
+
+<div class="sect">The Wardens</div>
+<div class="cols">
+  <div class="room" style="--accent:var(--gold)">
+    <h2>P1 — Obelisk <span class="style">all styles</span></h2>
+    <ul>
+      <li>DPS the obelisk; dodge the skull volleys and lightning tiles.</li>
+      <li>Prayer-switch on the warden attacks from the sides.</li>
+      <li>This phase sets your P2 — bank damage safely, don't greed through skulls.</li>
+    </ul>
+  </div>
+  <div class="room" style="--accent:var(--gold)">
+    <h2>P2 — Core <span class="style">burst dps</span></h2>
+    <ul>
+      <li>Warden slams → <b>core exposed</b> → dump your biggest hits into it.</li>
+      <li>Between cores: dodge vents and lightning, keep supplies topped.</li>
+      <li><span class="warn">Missing a core window is the raid's biggest time loss.</span></li>
+    </ul>
+  </div>
+  <div class="room" style="--accent:var(--red)">
+    <h2>P3 — Enrage <span class="style">survive</span></h2>
+    <ul>
+      <li>Rising floor tiles: pre-move, never react late.</li>
+      <li>Phantom bosses echo earlier rooms — same answers as before (Ba-Ba slam, Akkha orbs, Kephri swarm, Zebak wave).</li>
+      <li>Lightning intensifies as hp drops — save <b>ambrosia / thralls / specs</b> for the last 30%.</li>
+    </ul>
+  </div>
+</div>
+
+<footer>
+  Written for your comfort zone (~300 expert). General style per room: <b>Zebak ranged · Kephri
+  stab · Ba-Ba melee · Akkha magic</b> — bring the best you own of each and salts/nectar from the
+  helpful spirit. Tell Claude your exact gear and this page gets rewritten around your actual
+  switches; ask for a CoX or ToB sheet when you start learning them.
+</footer>
+</div>
+</div>
+<script>
+(function(){
+  var tabs=document.querySelectorAll("nav button"),cur="ledger";
+  try{cur=localStorage.getItem("toolkit-tab")||cur}catch(e){}
+  function show(k){
+    cur=k;
+    tabs.forEach(function(b){b.classList.toggle("on",b.dataset.t===k)});
+    document.querySelectorAll(".tool").forEach(function(d){d.hidden=d.id!=="t-"+k});
+    try{localStorage.setItem("toolkit-tab",k)}catch(e){}
+  }
+  tabs.forEach(function(b){b.onclick=function(){show(b.dataset.t)}});
+  show(document.getElementById("t-"+cur)?cur:"ledger");
+  // Sticky table headers park just below the nav bar.
+  var nav=document.querySelector("nav");
+  function setSticky(){document.documentElement.style.setProperty("--stickytop",nav.offsetHeight+"px")}
+  setSticky();window.addEventListener("resize",setSticky);
+})();
+</script>
+<script>
+/* ---- ledger ---- */
+(function(){
+
+// Snapshots are appended by Claude on each refresh — oldest first.
+// Player shape: {skills, activities, temple?} where temple = {slots:[filled,total], ehc,
+// items:{"Item name":count}} from TempleOSRS collection-log API (only for synced accounts).
+const SNAPSHOTS = [{"date":"2026-09-06","label":"6 Sep 2026","players":{"GIM ArchNem":{"skills":{"Overall":[1959,90817655],"Attack":[95,8790007],"Defence":[94,8494957],"Strength":[96,10475732],"Hitpoints":[98,12256119],"Ranged":[92,6575475],"Prayer":[76,1422920],"Magic":[87,4187762],"Cooking":[92,6812315],"Woodcutting":[77,1563580],"Fletching":[75,1212008],"Fishing":[83,2896064],"Firemaking":[77,1597085],"Crafting":[71,830390],"Smithing":[72,926329],"Mining":[95,8853798],"Herblore":[83,2689668],"Agility":[76,1362637],"Thieving":[73,1052158],"Slayer":[86,3913441],"Farming":[77,1478082],"Runecraft":[68,616701],"Hunter":[71,815580],"Construction":[71,864917],"Sailing":[74,1129930]},"activities":{"Clue Scrolls (all)":28,"Clue Scrolls (medium)":2,"Clue Scrolls (hard)":26,"LMS - Rank":626,"PvP Arena - Rank":2881,"Rifts closed":57,"Collections Logged":242,"Amoxliatl":46,"Barrows Chests":25,"Brutus":435,"Dagannoth Prime":60,"Dagannoth Rex":9,"Dagannoth Supreme":73,"Deranged Archaeologist":25,"Duke Sucellus":1,"Giant Mole":16,"Grotesque Guardians":30,"Hespori":10,"Kalphite Queen":1,"K'ril Tsutsaroth":10,"Lunar Chests":96,"Mad Angel":9,"Scurrius":33,"Skotizo":6,"Tempoross":6,"The Gauntlet":2,"The Corrupted Gauntlet":61,"The Hueycoatl":35,"The Leviathan":1,"The Royal Titans":123,"The Whisperer":1,"Tombs of Amascut":10,"TzTok-Jad":1,"Vardorvis":4,"Vorkath":25,"Wintertodt":85,"Zulrah":45}},"GIM DogSauce":{"skills":{"Overall":[1866,57749675],"Attack":[91,6158344],"Defence":[90,5573254],"Strength":[93,7649274],"Hitpoints":[95,8884294],"Ranged":[89,5214032],"Prayer":[74,1170166],"Magic":[84,3060320],"Cooking":[72,909050],"Woodcutting":[74,1142007],"Fletching":[74,1104012],"Fishing":[70,743529],"Firemaking":[75,1217547],"Crafting":[72,932230],"Smithing":[72,945684],"Mining":[74,1160021],"Herblore":[76,1352380],"Agility":[73,1040699],"Thieving":[75,1262168],"Slayer":[83,2698250],"Farming":[76,1407093],"Runecraft":[60,296725],"Hunter":[78,1720559],"Construction":[71,874126],"Sailing":[75,1233911]},"activities":{"Clue Scrolls (all)":56,"Clue Scrolls (beginner)":8,"Clue Scrolls (easy)":12,"Clue Scrolls (medium)":21,"Clue Scrolls (hard)":15,"LMS - Rank":493,"PvP Arena - Rank":2171,"Rifts closed":15,"Collections Logged":259,"Amoxliatl":134,"Barrows Chests":54,"Brutus":1201,"Bryophyta":1,"Dagannoth Prime":1,"Dagannoth Rex":3,"Dagannoth Supreme":1,"Duke Sucellus":1,"Giant Mole":1,"Hespori":10,"Kalphite Queen":1,"K'ril Tsutsaroth":6,"Lunar Chests":336,"Mad Angel":38,"Obor":3,"Sarachnis":72,"Scurrius":105,"Shellbane Gryphon":24,"Skotizo":7,"Tempoross":15,"The Gauntlet":16,"The Corrupted Gauntlet":2,"The Hueycoatl":37,"The Leviathan":1,"The Royal Titans":313,"The Whisperer":1,"Tombs of Amascut":2,"TzTok-Jad":1,"Vardorvis":1,"Vorkath":12,"Wintertodt":58,"Zulrah":7}},"Papa Davo":{"skills":{"Overall":[2056,198998919],"Attack":[99,14608565],"Defence":[99,14316328],"Strength":[99,27160122],"Hitpoints":[99,35258874],"Ranged":[99,28372508],"Prayer":[87,4183730],"Magic":[99,19261687],"Cooking":[84,3001071],"Woodcutting":[81,2204561],"Fletching":[91,6244048],"Fishing":[75,1289940],"Firemaking":[75,1210898],"Crafting":[93,7643472],"Smithing":[76,1463975],"Mining":[86,3645906],"Herblore":[87,4282466],"Agility":[76,1418709],"Thieving":[74,1185414],"Slayer":[99,13646776],"Farming":[86,3695834],"Runecraft":[66,518225],"Hunter":[74,1120104],"Construction":[82,2487669],"Sailing":[70,778037]},"activities":{"Clue Scrolls (all)":171,"Clue Scrolls (beginner)":6,"Clue Scrolls (easy)":5,"Clue Scrolls (medium)":87,"Clue Scrolls (hard)":72,"Clue Scrolls (elite)":1,"LMS - Rank":627,"PvP Arena - Rank":2940,"Rifts closed":28,"Colosseum Glory":837,"Collections Logged":420,"Abyssal Sire":550,"Alchemical Hydra":149,"Amoxliatl":21,"Araxxor":291,"Barrows Chests":408,"Brutus":2432,"Calvar'ion":300,"Cerberus":580,"Chambers of Xeric":11,"Chambers of Xeric: Challenge Mode":4,"Chaos Elemental":3,"Chaos Fanatic":1,"Commander Zilyana":11,"Crazy Archaeologist":21,"Dagannoth Prime":293,"Dagannoth Rex":92,"Dagannoth Supreme":113,"Duke Sucellus":376,"General Graardor":149,"Giant Mole":4,"Grotesque Guardians":16,"Hespori":37,"Kalphite Queen":42,"King Black Dragon":6,"Kraken":587,"K'ril Tsutsaroth":176,"Lunar Chests":319,"Mad Angel":108,"Maggot King":11,"Phantom Muspah":7,"Sarachnis":34,"Scorpia":1,"Scurrius":134,"Skotizo":47,"Spindel":262,"Tempoross":61,"The Gauntlet":23,"The Corrupted Gauntlet":404,"The Hueycoatl":52,"The Leviathan":1,"The Royal Titans":489,"The Whisperer":1,"Thermonuclear Smoke Devil":106,"Tombs of Amascut":29,"Tombs of Amascut: Expert Mode":43,"TzTok-Jad":3,"Vardorvis":142,"Vorkath":51,"Wintertodt":57,"Yama":206,"Zulrah":1014}}}},{"date":"2026-09-07","label":"7 Sep 2026","players":{"Papa Davo":{"skills":{"Overall":[2056,199108272],"Attack":[99,14609785],"Defence":[99,14316328],"Strength":[99,27160167],"Hitpoints":[99,35259295],"Ranged":[99,28372508],"Prayer":[87,4183730],"Magic":[99,19261717],"Cooking":[84,3001071],"Woodcutting":[81,2204561],"Fletching":[91,6244048],"Fishing":[75,1289940],"Firemaking":[75,1210898],"Crafting":[93,7643542],"Smithing":[76,1466483],"Mining":[86,3749905],"Herblore":[87,4282466],"Agility":[76,1418709],"Thieving":[74,1185414],"Slayer":[99,13646776],"Farming":[86,3695834],"Runecraft":[66,518885],"Hunter":[74,1120104],"Construction":[82,2488069],"Sailing":[70,778037]},"activities":{"Clue Scrolls (all)":173,"Clue Scrolls (beginner)":6,"Clue Scrolls (easy)":5,"Clue Scrolls (medium)":87,"Clue Scrolls (hard)":74,"Clue Scrolls (elite)":1,"LMS - Rank":627,"PvP Arena - Rank":2940,"Rifts closed":28,"Colosseum Glory":837,"Collections Logged":421,"Abyssal Sire":550,"Alchemical Hydra":149,"Amoxliatl":21,"Araxxor":291,"Barrows Chests":408,"Brutus":2432,"Calvar'ion":300,"Cerberus":580,"Chambers of Xeric":11,"Chambers of Xeric: Challenge Mode":4,"Chaos Elemental":3,"Chaos Fanatic":1,"Commander Zilyana":11,"Crazy Archaeologist":21,"Dagannoth Prime":293,"Dagannoth Rex":92,"Dagannoth Supreme":113,"Duke Sucellus":376,"General Graardor":149,"Giant Mole":4,"Grotesque Guardians":16,"Hespori":37,"Kalphite Queen":42,"King Black Dragon":6,"Kraken":587,"K'ril Tsutsaroth":176,"Lunar Chests":319,"Mad Angel":108,"Maggot King":11,"Phantom Muspah":7,"Sarachnis":34,"Scorpia":1,"Scurrius":134,"Skotizo":47,"Spindel":262,"Tempoross":61,"The Gauntlet":23,"The Corrupted Gauntlet":404,"The Hueycoatl":52,"The Leviathan":1,"The Royal Titans":489,"The Whisperer":1,"Thermonuclear Smoke Devil":106,"Tombs of Amascut":29,"Tombs of Amascut: Expert Mode":43,"TzTok-Jad":3,"Vardorvis":142,"Vorkath":51,"Wintertodt":57,"Yama":206,"Zulrah":1014},"temple":{"slots":[421,1717],"ehc":359.0,"items":{"abyssal_sire":{"Unsired":3,"Bludgeon spine":1,"Bludgeon claw":1,"Bludgeon axon":1,"Abyssal whip":11},"alchemical_hydra":{"Hydra's claw":1,"Hydra leather":1,"Hydra's fang":1,"Hydra's eye":1,"Dragon knife":291},"amoxliatl":{"Pendant of Ates (inert)":1,"Frozen tear":106},"araxxor":{"Araxyte venom sack":2479,"Spider cave teleport":51,"Araxyte fang":1,"Noxious point":1,"Noxious blade":1,"Noxious pommel":1,"Araxyte head":3},"barrows_chests":{"Ahrim's hood":4,"Torag's helm":2,"Karil's leathertop":1,"Ahrim's robetop":2,"Guthan's platebody":2,"Torag's platebody":2,"Ahrim's robeskirt":2,"Dharok's platelegs":1,"Guthan's chainskirt":1,"Torag's platelegs":1,"Verac's plateskirt":1,"Karil's crossbow":2,"Ahrim's staff":2,"Dharok's greataxe":1,"Guthan's warspear":1,"Torag's hammers":6,"Verac's flail":1,"Bolt rack":35},"brutus":{"Mooleta":70,"Bottomless milk bucket (empty)":67,"Cow slippers":11},"callisto_and_artio":{"Dragon pickaxe":1,"Dragon 2h sword":3},"cerberus":{"Eternal crystal":2,"Pegasian crystal":4,"Primordial crystal":1,"Jar of Souls":1,"Key master teleport":91},"chaos_elemental":{"Dragon pickaxe":1,"Dragon 2h sword":3},"commander_zilyana":{"Saradomin sword":1,"Godsword shard 1":2,"Godsword shard 2":1},"crazy_archaeologist":{"Fedora":1},"dagannoth_kings":{"Berserker ring":4,"Archers ring":1,"Seers ring":1,"Warrior ring":1,"Dragon axe":2,"Mud battlestaff":1},"doom_of_mokhaiotl":{"Avernic treads":1,"Mokhaiotl waystone":74,"Demon tear":41719},"duke_sucellus":{"Virtus robe top":1,"Ice quartz":1,"Frozen tablet":1,"Chromium ingot":2,"Awakener's orb":5},"the_fight_caves":{"Fire cape":3},"fortis_colosseum":{"Sunfire splinters":250},"the_gauntlet":{"Crystal armour seed":13,"Crystal weapon seed":4,"Enhanced crystal weapon seed":1,"Gauntlet cape":1},"general_graardor":{"Bandos tassets":1,"Godsword shard 1":2,"Godsword shard 2":1},"giant_mole":{"Mole skin":9,"Mole claw":4,"Immaculate mole skin":1},"grotesque_guardians":{"Granite dust":4474},"hespori":{"Iasor seed":25,"Kronos seed":21,"Attas seed":9},"hueycoatl":{"Soiled page":57,"Hueycoatl hide":3,"Huasca seed":15},"kalphite_queen":{"Kq head":1,"Dragon 2h sword":3,"Dragon pickaxe":1},"king_black_dragon":{"Dragon pickaxe":1},"kraken":{"Kraken tentacle":2,"Jar of Dirt":1},"kree_arra":{"Godsword shard 1":2,"Godsword shard 2":1},"kril_tsutsaroth":{"Zamorakian spear":2,"Godsword shard 1":2,"Godsword shard 2":1},"the_leviathan":{"Virtus robe top":1,"Chromium ingot":2,"Awakener's orb":5},"the_mad_angel":{"Hallowfell":1,"Ardeaglais teleport":6,"Granite dust":4474},"moons_of_peril":{"Eclipse moon chestplate":1,"Eclipse moon tassets":1,"Eclipse moon helm":2,"Eclipse atlatl":1,"Blue moon chestplate":2,"Blue moon tassets":1,"Blue moon helm":1,"Blue moon spear":1,"Blood moon chestplate":1,"Blood moon tassets":2,"Blood moon helm":2,"Dual macuahuitl":1,"Atlatl dart":250},"phantom_muspah":{"Ancient icon":1,"Ancient essence":3401},"royal_titans":{"Deadeye prayer scroll":1,"Mystic vigour prayer scroll":1,"Giantsoul amulet (uncharged)":6,"Ice element staff crown":2,"Fire element staff crown":3,"Desiccated page":250},"scorpia":{"Dragon 2h sword":3},"scurrius":{"Scurrius' spine":4},"skotizo":{"Skotos":1,"Dark claw":1,"Ancient shard":170},"tempoross":{"Soaked page":24,"Fish barrel":1,"Spirit flakes":3446},"thermonuclear_smoke_devil":{"Occult necklace":1},"vardorvis":{"Virtus robe top":1,"Blood quartz":1,"Strangled tablet":1,"Chromium ingot":2,"Awakener's orb":5},"venenatis_and_spindel":{"Treasonous ring":1,"Dragon pickaxe":1,"Dragon 2h sword":3},"vetion_and_calvarion":{"Dragon pickaxe":1,"Dragon 2h sword":3,"Voidwaker blade":1},"vorkath":{"Vorkath's head":2},"the_whisperer":{"Virtus robe top":1,"Chromium ingot":2,"Awakener's orb":5},"wintertodt":{"Burnt page":59,"Bruma torch":4,"Dragon axe":2},"yama":{"Chasm teleport scroll":44,"Oathplate chest":1,"Soulflame horn":1,"Oathplate shards":94,"Rite of vile transference":1,"Forgotten lockbox":4,"Dossier":7,"Barrel of demonic tallow (full)":8},"zulrah":{"Jar of Swamp":1,"Magic fang":1,"Serpentine visage":2,"Tanzanite fang":1,"Zul-andra teleport":512,"Zulrah's scales":65535},"chambers_of_xeric":{"Torn prayer scroll":1,"Dark relic":1},"theatre_of_blood":{"Vial of blood":10},"tombs_of_amascut":{"Lightbearer":1,"Osmumten's fang":2,"Thread of Elidinis":2,"Breach of the Scarab":4,"Eye of the Corruptor":3,"Jewel of the Sun":2,"Jewel of Amascut":3,"Masori crafting kit":1,"Cache of runes":15},"beginner_treasure_trails":{"Jester cape":1,"Black pickaxe":1},"easy_treasure_trails":{"Black platelegs (t)":1,"Black pickaxe":1,"Willow comp bow":1},"medium_treasure_trails":{"Ranger boots":1,"Climbing boots (g)":1,"Adamant platelegs (t)":1,"Adamant kiteshield (t)":1,"Adamant kiteshield (g)":1,"Adamant shield (h3)":1,"Adamant helm (h4)":1,"Adamant platebody (h1)":1,"Adamant platebody (h2)":2,"Adamant platebody (h4)":1,"Mithril platebody (t)":1,"Mithril kiteshield (t)":1,"Green d'hide body (g)":3,"Green d'hide chaps (g)":1,"Saradomin mitre":1,"Guthix mitre":1,"Zamorak mitre":2,"Ancient mitre":1,"Ancient stole":1,"Bandos stole":1,"Bandos crozier":1,"Pink boater":1,"Green headband":1,"Crier hat":2,"Crier bell":1,"White unicorn mask":1,"Black leprechaun hat":1,"Wolf mask":1,"Purple elegant legs":1,"Black elegant shirt":1,"Pink elegant skirt":1,"Gnomish firelighter":1,"Strength amulet (t)":1,"Yew comp bow":1},"hard_treasure_trails":{"Dragon boots ornament kit":1,"Rune plateskirt (t)":1,"Rune full helm (g)":1,"Rune platebody (g)":1,"Zamorak kiteshield":1,"Guthix plateskirt":1,"Armadyl platebody":1,"Armadyl plateskirt":1,"Bandos full helm":1,"Bandos platebody":2,"Bandos platelegs":1,"Bandos kiteshield":1,"Rune helm (h1)":1,"Rune helm (h5)":1,"Saradomin bracers":1,"Zamorak coif":1,"Zamorak d'hide boots":1,"Bandos coif":1,"Armadyl chaps":1,"Ancient d'hide body":1,"Red d'hide chaps (g)":1,"Enchanted robe":2,"Saradomin stole":1,"Red cavalier":1,"Black cavalier":1,"Green dragon mask":1,"Rune cane":1},"elite_treasure_trails":{"Dark infinity colour kit":1},"gilded":{"Gilded full helm":1},"third_age":{"3rd Age amulet":1},"shared_treasure_trail_rewards":{"Zamorak page 1":1,"Guthix page 1":1,"Bandos page 1":1,"Ancient page 1":1,"Zamorak page 2":2,"Guthix page 2":4,"Bandos page 2":1,"Armadyl page 2":1,"Ancient page 2":1,"Saradomin page 3":1,"Zamorak page 3":2,"Bandos page 3":1,"Ancient page 3":1,"Saradomin page 4":1,"Guthix page 4":3,"Ancient page 4":1,"Peaceful blessing":1,"Ancient blessing":1,"Nardah teleport":15,"Mort'ton teleport":14,"Feldip hills teleport":15,"Digsite teleport":24,"Piscatoris teleport":25,"Pest control teleport":18,"Tai bwo wannai teleport":15,"Lumberyard teleport":26,"Iorwerth camp teleport":20,"Master scroll book (empty)":3,"Red firelighter":15,"Green firelighter":13,"Blue firelighter":71,"Purple firelighter":55,"White firelighter":65,"Charge dragonstone jewellery scroll":9,"Purple sweets":273},"scroll_cases":{"Minor hard scroll case":1},"brimhaven_agility_arena":{"Agility arena ticket":2,"Brimhaven voucher":2},"fishing_trawler":{"Angler hat":1,"Angler top":1,"Angler waders":1,"Angler boots":1},"giants_foundry":{"Double ammo mould":1,"Kovac's grog":3},"guardians_of_the_rift":{"Abyssal pearls":166,"Intricate pouch":1},"last_man_standing":{"Victor's cape (1)":1},"magic_training_arena":{"Infinity boots":1},"mahogany_homes":{"Carpenter's helmet":1,"Carpenter's shirt":1,"Carpenter's trousers":1,"Carpenter's boots":1,"Plank sack":1},"pest_control":{"Void knight top":1,"Void knight robe":1,"Void knight gloves":1,"Void ranger helm":1,"Elite void top":1,"Elite void robe":1},"mastering_mixology":{"Prescription goggles":1,"Alchemist's amulet":1,"Reagent pouch":1},"rogues_den":{"Rogue mask":1,"Rogue top":1,"Rogue trousers":1,"Rogue boots":1,"Rogue gloves":1},"vale_totems":{"Fletching knife":1,"Ent branch":63,"Greenman mask":1},"volcanic_mine":{"Prospector helmet":1,"Prospector jacket":1,"Prospector legs":1,"Prospector boots":1},"aerial_fishing":{"Angler hat":1,"Angler top":1,"Angler waders":1,"Angler boots":1},"all_pets":{"Skotos":1},"boat_paints":{"Shark paint":1},"camdozaal":{"Imcando hammer":1},"champions_challenge":{"Zombie champion scroll":1},"chompy_bird_hunting":{"Chompy bird hat":1},"creature_creation":{"Tea flask":58,"Green satchel":43,"Red satchel":46},"cyclopes":{"Bronze defender":1,"Iron defender":1,"Steel defender":1,"Black defender":1,"Mithril defender":1,"Adamant defender":1,"Rune defender":1,"Dragon defender":1},"gloughs_experiments":{"Zenyte shard":7,"Light frame":3,"Heavy frame":1,"Ballista limbs":3,"Ballista spring":3},"hunter_guild":{"Guild hunter headwear":1,"Guild hunter top":1},"lost_schematics":{"Salvaging station schematic":1,"Bosun's workbench schematic":1},"motherlode_mine":{"Prospector helmet":1,"Prospector jacket":1,"Prospector legs":1,"Prospector boots":1},"random_events":{"Camo top":1,"Camo bottoms":1,"Camo helmet":1,"Mime top":1,"Mime legs":1,"Mime gloves":1,"Mime boots":1,"Frog token":5},"revenants":{"Revenant cave teleport":18},"rooftop_agility":{"Mark of Grace":188,"Graceful top":1,"Graceful legs":1,"Graceful boots":1},"sailing_miscellaneous":{"Dragon cannonball":4,"Boat bottle (empty)":3,"Facility bottle (empty)":4},"sea_treasures":{"Sailors' amulet (inert)":1,"Rusty coin":1},"shayzien_armour":{"Shayzien gloves (1)":1,"Shayzien boots (1)":1,"Shayzien helm (1)":1,"Shayzien greaves (1)":1,"Shayzien platebody (1)":1,"Shayzien gloves (2)":1,"Shayzien boots (2)":1,"Shayzien helm (2)":1,"Shayzien greaves (2)":1,"Shayzien platebody (2)":1,"Shayzien gloves (3)":1,"Shayzien boots (3)":1,"Shayzien helm (3)":1,"Shayzien greaves (3)":1,"Shayzien platebody (3)":1,"Shayzien gloves (4)":1,"Shayzien boots (4)":1,"Shayzien helm (4)":1,"Shayzien greaves (4)":1,"Shayzien platebody (4)":1,"Shayzien gloves (5)":1,"Shayzien boots (5)":1,"Shayzien helm (5)":1,"Shayzien greaves (5)":1,"Shayzien body (5)":1},"shooting_stars":{"Celestial ring (uncharged)":1},"slayer":{"Basilisk head":1,"Kurask head":1,"Dust battlestaff":2,"Mist battlestaff":1,"Abyssal whip":11,"Granite maul":12,"Leaf-bladed sword":4,"Leaf-bladed battleaxe":1,"Bronze boots":5,"Iron boots":3,"Black boots":23,"Mithril boots":12,"Adamant boots":25,"Rune boots":42,"Dragon boots":3,"Uncharged trident":3,"Kraken tentacle":2,"Dark bow":1,"Occult necklace":1,"Dragon knife":291,"Drake's tooth":2,"Drake's claw":1,"Hydra's fang":1,"Hydra's eye":1,"Mystic hat (light)":5,"Mystic robe top (light)":8,"Mystic robe bottom (light)":2,"Mystic robe top (dark)":2,"Mystic robe bottom (dark)":2,"Mystic gloves (dark)":2,"Mystic gloves (dusk)":1,"Basilisk jaw":1,"Blood shard":2,"Warped sceptre (uncharged)":2,"Aranea boots":4,"Pendant of Ates (inert)":1,"Frozen tear":106,"Venator tooth":355,"Venator fang":413},"tormented_demons":{"Tormented synapse":3,"Burning claw":8,"Guthixian temple teleport":224},"miscellaneous":{"Dragon warhammer":2,"Long bone":33,"Curved bone":2,"Dark totem base":48,"Dark totem middle":48,"Dark totem top":47,"Shield left half":7,"Dragon spear":11,"Right skull half":8,"Left skull half":4,"Top of sceptre":1,"Bottom of sceptre":1,"Giant key":1,"Hespori seed":37,"Fresh crab claw":1,"Xeric's talisman (inert)":86,"Enhanced crystal teleport seed":1,"Orange egg sac":1,"Broken zombie axe":3}},"recent":[["Rune helm (h5)","2026-09-07 01:00",0]]}},"GIM DogSauce":{"skills":{"Overall":[1866,58115571],"Attack":[91,6178465],"Defence":[90,5594797],"Strength":[93,7758089],"Hitpoints":[95,8960501],"Ranged":[89,5292395],"Prayer":[74,1173686],"Magic":[84,3061305],"Cooking":[72,909050],"Woodcutting":[74,1142007],"Fletching":[74,1104012],"Fishing":[70,743529],"Firemaking":[75,1217547],"Crafting":[72,932230],"Smithing":[72,945684],"Mining":[74,1160021],"Herblore":[76,1352380],"Agility":[73,1040708],"Thieving":[75,1262168],"Slayer":[83,2754583],"Farming":[76,1407093],"Runecraft":[60,296725],"Hunter":[78,1720559],"Construction":[71,874126],"Sailing":[75,1233911]},"activities":{"Clue Scrolls (all)":58,"Clue Scrolls (beginner)":8,"Clue Scrolls (easy)":12,"Clue Scrolls (medium)":23,"Clue Scrolls (hard)":15,"LMS - Rank":493,"PvP Arena - Rank":2171,"Rifts closed":15,"Collections Logged":263,"Amoxliatl":134,"Barrows Chests":54,"Brutus":1201,"Bryophyta":1,"Dagannoth Prime":1,"Dagannoth Rex":3,"Dagannoth Supreme":1,"Duke Sucellus":1,"Giant Mole":1,"Hespori":10,"Kalphite Queen":1,"K'ril Tsutsaroth":6,"Lunar Chests":336,"Mad Angel":38,"Obor":3,"Sarachnis":72,"Scurrius":105,"Shellbane Gryphon":24,"Skotizo":7,"Tempoross":15,"The Gauntlet":16,"The Corrupted Gauntlet":2,"The Hueycoatl":37,"The Leviathan":1,"The Royal Titans":313,"The Whisperer":1,"Tombs of Amascut":2,"TzTok-Jad":1,"Vardorvis":1,"Vorkath":12,"Wintertodt":58,"Zulrah":7},"temple":{"slots":[259,1717],"ehc":109.1,"items":{"amoxliatl":{"Glacial temotli":1,"Pendant of Ates (inert)":3,"Frozen tear":706},"barrows_chests":{"Verac's helm":1,"Ahrim's robeskirt":1},"brutus":{"Mooleta":48,"Bottomless milk bucket (empty)":31,"Cow slippers":7},"the_fight_caves":{"Fire cape":1},"fortis_colosseum":{"Sunfire splinters":250},"the_gauntlet":{"Gauntlet cape":1},"giant_mole":{"Mole skin":2,"Mole claw":1},"grotesque_guardians":{"Granite dust":1113},"hespori":{"Iasor seed":2,"Kronos seed":6,"Attas seed":8},"hueycoatl":{"Soiled page":43,"Hueycoatl hide":6,"Huasca seed":16},"the_mad_angel":{"Hallowfell":1,"Granite dust":1113},"moons_of_peril":{"Eclipse moon chestplate":1,"Eclipse moon tassets":1,"Eclipse moon helm":1,"Eclipse atlatl":1,"Blue moon chestplate":1,"Blue moon tassets":1,"Blue moon helm":1,"Blue moon spear":1,"Blood moon chestplate":1,"Blood moon tassets":1,"Blood moon helm":1,"Dual macuahuitl":1,"Atlatl dart":250},"royal_titans":{"Giantsoul amulet (uncharged)":5,"Ice element staff crown":2,"Desiccated page":130},"sarachnis":{"Giant egg sac(full)":6,"Pristine spider silk":1},"scurrius":{"Scurrius' spine":2},"shellbane_gryphon":{"Gryphon feather":250},"skotizo":{"Ancient shard":34},"tempoross":{"Spirit flakes":393},"vorkath":{"Vorkath's head":1},"wintertodt":{"Burnt page":54,"Warm gloves":3,"Bruma torch":3},"zulrah":{"Zul-andra teleport":12,"Zulrah's scales":1310},"tombs_of_amascut":{"Thread of Elidinis":1,"Cache of runes":1},"beginner_treasure_trails":{"Monk's robe top (t)":1},"easy_treasure_trails":{"Steel platelegs (t)":1},"medium_treasure_trails":{"Climbing boots (g)":1,"Adamant kiteshield (t)":1,"Adamant shield (h1)":1,"Crier hat":1,"Crier coat":1,"Wolf cloak":1},"hard_treasure_trails":{"Guthix platelegs":1,"Armadyl full helm":1,"Armadyl bracers":1,"Magic comp bow":1},"shared_treasure_trail_rewards":{"Zamorak page 1":1,"Armadyl page 1":1,"Ancient page 1":1,"Bandos page 4":2,"Holy blessing":1,"War blessing":1,"Honourable blessing":1,"Digsite teleport":11,"Pest control teleport":23,"Master scroll book (empty)":1,"Red firelighter":11,"Blue firelighter":15,"Purple firelighter":17,"White firelighter":9,"Charge dragonstone jewellery scroll":13,"Purple sweets":23},"barbarian_assault":{"Fighter torso":1,"Granite body":1},"barracuda_trials":{"Stormy key":1,"Barrel stand":1,"Ralph's fabric roll":1,"Fetid key":1,"Captured wind mote":1,"Gurtob's fabric roll":1,"Serrated key":1,"Heart of ithell":1,"Gwyna's fabric roll":1},"brimhaven_agility_arena":{"Agility arena ticket":2,"Brimhaven voucher":2},"fishing_trawler":{"Angler hat":1,"Angler top":1,"Angler waders":1,"Angler boots":1},"giants_foundry":{"Double ammo mould":1,"Kovac's grog":1},"guardians_of_the_rift":{"Abyssal pearls":60,"Intricate pouch":1},"hallowed_sepulchre":{"Hallowed mark":63,"Mysterious page":1},"magic_training_arena":{"Infinity boots":1,"Bones to peaches":1},"mahogany_homes":{"Plank sack":1},"pest_control":{"Void knight top":1,"Void knight robe":1,"Void knight gloves":1,"Void ranger helm":1,"Elite void top":1,"Elite void robe":1},"rogues_den":{"Rogue mask":1,"Rogue top":1,"Rogue trousers":1,"Rogue boots":1,"Rogue gloves":1},"temple_trekking":{"Lumberjack hat":1,"Lumberjack top":2,"Lumberjack legs":1,"Lumberjack boots":1},"tithe_farm":{"Herb sack":1},"vale_totems":{"Fletching knife":1,"Ent branch":19},"volcanic_mine":{"Prospector helmet":1},"aerial_fishing":{"Angler hat":1,"Angler top":1,"Angler waders":1,"Angler boots":1},"boat_paints":{"Shark paint":1,"Saradominist paint":1},"camdozaal":{"Ancient globe":1,"Ancient astroscope":1,"Imcando hammer":1},"champions_challenge":{"Skeleton champion scroll":1},"chompy_bird_hunting":{"Chompy bird hat":1},"colossal_wyrm_agility":{"Graceful hood":1,"Graceful cape":1,"Graceful top":1,"Graceful legs":1,"Graceful gloves":1,"Graceful boots":1},"creature_creation":{"Tea flask":4,"Green satchel":9},"cyclopes":{"Bronze defender":1,"Iron defender":1,"Steel defender":1,"Black defender":1,"Mithril defender":1,"Adamant defender":1,"Rune defender":1,"Dragon defender":1},"forestry":{"Lumberjack hat":1,"Lumberjack top":2,"Lumberjack legs":1,"Lumberjack boots":1,"Sturdy beehive parts":7},"gloughs_experiments":{"Zenyte shard":1,"Ballista spring":1},"hunter_guild":{"Huntsman's kit":1},"lost_schematics":{"Salvaging station schematic":1,"Bosun's workbench schematic":1},"motherlode_mine":{"Prospector helmet":1},"ocean_encounters":{"Small pearl":1},"random_events":{"Camo top":1,"Camo bottoms":1,"Camo helmet":1,"Lederhosen top":1,"Lederhosen shorts":1,"Lederhosen hat":1,"Zombie shirt":1,"Zombie trousers":1,"Zombie mask":1,"Zombie gloves":1,"Zombie boots":1,"Mime mask":1,"Mime top":1,"Mime legs":1,"Mime gloves":1,"Mime boots":1,"Frog token":4,"Beekeeper's hat":1,"Beekeeper's top":1,"Beekeeper's legs":1,"Beekeeper's gloves":1,"Beekeeper's boots":1},"rooftop_agility":{"Mark of Grace":275,"Graceful hood":1,"Graceful cape":1,"Graceful top":1,"Graceful legs":1,"Graceful gloves":1,"Graceful boots":1},"sailing_miscellaneous":{"Boat bottle (empty)":1,"Facility bottle (empty)":5},"sea_treasures":{"Sailors' amulet (inert)":1,"Rusty coin":1},"shayzien_armour":{"Shayzien gloves (1)":1,"Shayzien boots (1)":1,"Shayzien helm (1)":1,"Shayzien greaves (1)":1,"Shayzien platebody (1)":1,"Shayzien gloves (2)":1,"Shayzien boots (2)":1,"Shayzien helm (2)":1,"Shayzien greaves (2)":1,"Shayzien platebody (2)":1,"Shayzien gloves (3)":1,"Shayzien boots (3)":1,"Shayzien helm (3)":1,"Shayzien greaves (3)":1,"Shayzien platebody (3)":1,"Shayzien gloves (4)":1,"Shayzien boots (4)":1,"Shayzien helm (4)":1,"Shayzien greaves (4)":1,"Shayzien platebody (4)":1,"Shayzien gloves (5)":1,"Shayzien boots (5)":1,"Shayzien helm (5)":1,"Shayzien greaves (5)":1,"Shayzien body (5)":1},"slayer":{"Flippers":1,"Brine sabre":1,"Black mask (10)":2,"Granite legs":1,"Bronze boots":2,"Iron boots":1,"Black boots":11,"Mithril boots":1,"Adamant boots":4,"Mystic gloves (light)":1,"Warped sceptre (uncharged)":1,"Sulphur blades":7,"Glacial temotli":1,"Pendant of Ates (inert)":3,"Frozen tear":706,"Broken antler":12,"Gryphon feather":250,"Air diamond":1,"Water sapphire":1,"Earth emerald":1,"Fire ruby":1},"tormented_demons":{"Tormented synapse":1,"Burning claw":5,"Guthixian temple teleport":150},"miscellaneous":{"Long bone":11,"Curved bone":1,"Pharaoh's sceptre (uncharged)":2,"Dark totem base":8,"Dark totem middle":7,"Dark totem top":7,"Shield left half":1,"Right skull half":7,"Left skull half":1,"Top of sceptre":1,"Bottom of sceptre":1,"Mossy key":1,"Giant key":18,"Hespori seed":10,"Fresh crab claw":1,"Fresh crab shell":1,"Xeric's talisman (inert)":7,"Broken zombie axe":1,"Jeweller's chisel":1}},"recent":[]}},"GIM ArchNem":{"skills":{"Overall":[1959,90817655],"Attack":[95,8790007],"Defence":[94,8494957],"Strength":[96,10475732],"Hitpoints":[98,12256119],"Ranged":[92,6575475],"Prayer":[76,1422920],"Magic":[87,4187762],"Cooking":[92,6812315],"Woodcutting":[77,1563580],"Fletching":[75,1212008],"Fishing":[83,2896064],"Firemaking":[77,1597085],"Crafting":[71,830390],"Smithing":[72,926329],"Mining":[95,8853798],"Herblore":[83,2689668],"Agility":[76,1362637],"Thieving":[73,1052158],"Slayer":[86,3913441],"Farming":[77,1478082],"Runecraft":[68,616701],"Hunter":[71,815580],"Construction":[71,864917],"Sailing":[74,1129930]},"activities":{"Clue Scrolls (all)":28,"Clue Scrolls (medium)":2,"Clue Scrolls (hard)":26,"LMS - Rank":626,"PvP Arena - Rank":2881,"Rifts closed":57,"Collections Logged":242,"Amoxliatl":46,"Barrows Chests":25,"Brutus":435,"Dagannoth Prime":60,"Dagannoth Rex":9,"Dagannoth Supreme":73,"Deranged Archaeologist":25,"Duke Sucellus":1,"Giant Mole":16,"Grotesque Guardians":30,"Hespori":10,"Kalphite Queen":1,"K'ril Tsutsaroth":10,"Lunar Chests":96,"Mad Angel":9,"Scurrius":33,"Skotizo":6,"Tempoross":6,"The Gauntlet":2,"The Corrupted Gauntlet":61,"The Hueycoatl":35,"The Leviathan":1,"The Royal Titans":123,"The Whisperer":1,"Tombs of Amascut":10,"TzTok-Jad":1,"Vardorvis":4,"Vorkath":25,"Wintertodt":85,"Zulrah":45}}}}];
+const CLOGCATS={"bosses":{"abyssal_sire":9,"alchemical_hydra":11,"amoxliatl":4,"araxxor":10,"barrows_chests":25,"brutus":4,"bryophyta":1,"callisto_and_artio":6,"cerberus":7,"chaos_elemental":3,"chaos_fanatic":3,"commander_zilyana":8,"corporeal_beast":7,"crazy_archaeologist":3,"dagannoth_kings":10,"deranged_archaeologist":1,"doom_of_mokhaiotl":6,"duke_sucellus":10,"the_fight_caves":2,"fortis_colosseum":9,"the_gauntlet":5,"general_graardor":8,"giant_mole":4,"grotesque_guardians":7,"hespori":4,"hueycoatl":6,"the_inferno":2,"kalphite_queen":6,"king_black_dragon":4,"kraken":4,"kree_arra":8,"kril_tsutsaroth":8,"the_leviathan":10,"the_mad_angel":5,"maggot_king":3,"moons_of_peril":13,"nex":8,"the_nightmare":12,"obor":1,"phantom_muspah":6,"royal_titans":7,"sarachnis":5,"scorpia":4,"scurrius":2,"shellbane_gryphon":4,"skotizo":6,"tempoross":12,"thermonuclear_smoke_devil":5,"vardorvis":10,"venenatis_and_spindel":6,"vetion_and_calvarion":6,"vorkath":6,"the_whisperer":10,"wintertodt":10,"yama":11,"zalcano":4,"zulrah":10},"raids":{"chambers_of_xeric":23,"theatre_of_blood":17,"tombs_of_amascut":27},"clues":{"beginner_treasure_trails":16,"easy_treasure_trails":131,"medium_treasure_trails":115,"hard_treasure_trails":134,"elite_treasure_trails":60,"master_treasure_trails":50,"gilded":20,"third_age":23,"mimic":1,"shared_treasure_trail_rewards":49,"scroll_cases":13},"minigames":{"barbarian_assault":11,"barracuda_trials":9,"brimhaven_agility_arena":9,"castle_wars":39,"fishing_trawler":4,"giants_foundry":9,"gnome_restaurant":4,"guardians_of_the_rift":17,"hallowed_sepulchre":16,"last_man_standing":32,"magic_training_arena":11,"mahogany_homes":8,"pest_control":10,"mastering_mixology":7,"rogues_den":5,"shades_of_mortton":14,"soul_wars":3,"temple_trekking":4,"tithe_farm":7,"trouble_brewing":30,"vale_totems":4,"volcanic_mine":8},"other":{"aerial_fishing":9,"all_pets":71,"boat_paints":11,"camdozaal":10,"champions_challenge":11,"chaos_druids":3,"chompy_bird_hunting":19,"colossal_wyrm_agility":8,"creature_creation":7,"cyclopes":8,"forestry":23,"fossil_island_notes":10,"gloughs_experiments":6,"hunter_guild":6,"lost_schematics":12,"monkey_backpacks":6,"motherlode_mine":6,"my_notes":26,"ocean_encounters":11,"random_events":23,"revenants":14,"rooftop_agility":7,"sailing_miscellaneous":12,"sea_treasures":17,"shayzien_armour":25,"shooting_stars":2,"skilling_pets":9,"slayer":95,"tormented_demons":3,"tzhaar":10,"miscellaneous":63}};
+const GROUPLABEL={bosses:"Bosses",raids:"Raids",clues:"Clues",minigames:"Minigames",other:"Other"};
+const SMALLWORDS=new Set(["of","the","and","a","in","to"]);
+const catName=slug=>slug.split("_").map((w,i)=>
+  i>0&&SMALLWORDS.has(w)?w:w.charAt(0).toUpperCase()+w.slice(1)).join(" ");
+// Items flattened across categories (an item can sit in several pages — count once).
+function flatItems(t){
+  if(!t)return null;
+  const out={};
+  for(const k in t.items){
+    const v=t.items[k];
+    if(typeof v==="number"){out[k]=Math.max(out[k]||0,v);continue}
+    for(const n in v)out[n]=Math.max(out[n]||0,v[n]);
+  }
+  return out;
+}
+// Log page -> hiscore activity name(s) whose KC sum is that page's kill count.
+const CLOG_KC={
+ abyssal_sire:["Abyssal Sire"],alchemical_hydra:["Alchemical Hydra"],amoxliatl:["Amoxliatl"],
+ araxxor:["Araxxor"],barrows_chests:["Barrows Chests"],brutus:["Brutus"],bryophyta:["Bryophyta"],
+ callisto_and_artio:["Callisto","Artio"],cerberus:["Cerberus"],chaos_elemental:["Chaos Elemental"],
+ chaos_fanatic:["Chaos Fanatic"],commander_zilyana:["Commander Zilyana"],
+ corporeal_beast:["Corporeal Beast"],crazy_archaeologist:["Crazy Archaeologist"],
+ dagannoth_kings:["Dagannoth Prime","Dagannoth Rex","Dagannoth Supreme"],
+ deranged_archaeologist:["Deranged Archaeologist"],doom_of_mokhaiotl:["Doom of Mokhaiotl"],
+ duke_sucellus:["Duke Sucellus"],fortis_colosseum:["Sol Heredit"],
+ general_graardor:["General Graardor"],giant_mole:["Giant Mole"],
+ grotesque_guardians:["Grotesque Guardians"],hespori:["Hespori"],hueycoatl:["The Hueycoatl"],
+ kalphite_queen:["Kalphite Queen"],king_black_dragon:["King Black Dragon"],kraken:["Kraken"],
+ kree_arra:["Kree'Arra"],kril_tsutsaroth:["K'ril Tsutsaroth"],maggot_king:["Maggot King"],
+ moons_of_peril:["Lunar Chests"],nex:["Nex"],obor:["Obor"],phantom_muspah:["Phantom Muspah"],
+ royal_titans:["The Royal Titans"],sarachnis:["Sarachnis"],scorpia:["Scorpia"],
+ scurrius:["Scurrius"],shellbane_gryphon:["Shellbane Gryphon"],skotizo:["Skotizo"],
+ tempoross:["Tempoross"],the_fight_caves:["TzTok-Jad"],
+ the_gauntlet:["The Gauntlet","The Corrupted Gauntlet"],the_inferno:["TzKal-Zuk"],
+ the_leviathan:["The Leviathan"],the_mad_angel:["Mad Angel"],
+ the_nightmare:["Nightmare","Phosani's Nightmare"],the_whisperer:["The Whisperer"],
+ thermonuclear_smoke_devil:["Thermonuclear Smoke Devil"],vardorvis:["Vardorvis"],
+ venenatis_and_spindel:["Venenatis","Spindel"],vetion_and_calvarion:["Vet'ion","Calvar'ion"],
+ vorkath:["Vorkath"],wintertodt:["Wintertodt"],yama:["Yama"],zalcano:["Zalcano"],zulrah:["Zulrah"],
+ chambers_of_xeric:["Chambers of Xeric","Chambers of Xeric: Challenge Mode"],
+ theatre_of_blood:["Theatre of Blood","Theatre of Blood: Hard Mode"],
+ tombs_of_amascut:["Tombs of Amascut","Tombs of Amascut: Expert Mode"],
+ beginner_treasure_trails:["Clue Scrolls (beginner)"],easy_treasure_trails:["Clue Scrolls (easy)"],
+ medium_treasure_trails:["Clue Scrolls (medium)"],hard_treasure_trails:["Clue Scrolls (hard)"],
+ elite_treasure_trails:["Clue Scrolls (elite)"],master_treasure_trails:["Clue Scrolls (master)"],
+ mimic:["Mimic"],guardians_of_the_rift:["Rifts closed"],
+};
+const LATEST=SNAPSHOTS[SNAPSHOTS.length-1], DATA=LATEST.players;
+document.getElementById("snapdate").textContent=LATEST.label;
+
+const ACCOUNTS = [
+  {key:"Papa Davo",  label:"Papa Davo",     color:"var(--c-davo)", you:true},
+  {key:"GIM DogSauce", label:"GIM DogSauce", color:"var(--c-dog)"},
+  {key:"GIM ArchNem",  label:"GIM ArchNem",  color:"var(--c-arch)"},
+];
+const SKILL_ORDER = ["Attack","Strength","Defence","Ranged","Prayer","Magic","Hitpoints",
+  "Slayer","Herblore","Agility","Thieving","Crafting","Fletching","Construction",
+  "Mining","Smithing","Fishing","Cooking","Firemaking","Woodcutting","Farming",
+  "Hunter","Runecraft","Sailing"];
+// Complete official hiscores rosters — every tracked boss and activity, even at 0 KC.
+const BOSS_LIST=["Abyssal Sire","Alchemical Hydra","Amoxliatl","Araxxor","Artio","Barrows Chests",
+ "Brutus","Bryophyta","Callisto","Calvar'ion","Cerberus","Chambers of Xeric",
+ "Chambers of Xeric: Challenge Mode","Chaos Elemental","Chaos Fanatic","Commander Zilyana",
+ "Corporeal Beast","Crazy Archaeologist","Dagannoth Prime","Dagannoth Rex","Dagannoth Supreme",
+ "Deranged Archaeologist","Doom of Mokhaiotl","Duke Sucellus","General Graardor","Giant Mole",
+ "Grotesque Guardians","Hespori","Kalphite Queen","King Black Dragon","Kraken","Kree'Arra",
+ "K'ril Tsutsaroth","Lunar Chests","Mad Angel","Maggot King","Mimic","Nex","Nightmare",
+ "Phosani's Nightmare","Obor","Phantom Muspah","Sarachnis","Scorpia","Scurrius",
+ "Shellbane Gryphon","Skotizo","Sol Heredit","Spindel","Tempoross","The Gauntlet",
+ "The Corrupted Gauntlet","The Hueycoatl","The Leviathan","The Royal Titans","The Whisperer",
+ "Theatre of Blood","Theatre of Blood: Hard Mode","Thermonuclear Smoke Devil","Tombs of Amascut",
+ "Tombs of Amascut: Expert Mode","TzKal-Zuk","TzTok-Jad","Vardorvis","Venenatis","Vet'ion",
+ "Vorkath","Wintertodt","Yama","Zalcano","Zulrah"];
+const ACTIVITY_LIST=["Grid Points","League Points","Deadman Points","Bounty Hunter - Hunter",
+ "Bounty Hunter - Rogue","Bounty Hunter (Legacy) - Hunter","Bounty Hunter (Legacy) - Rogue",
+ "Clue Scrolls (all)","Clue Scrolls (beginner)","Clue Scrolls (easy)","Clue Scrolls (medium)",
+ "Clue Scrolls (hard)","Clue Scrolls (elite)","Clue Scrolls (master)","LMS - Rank",
+ "PvP Arena - Rank","Soul Wars Zeal","Rifts closed","Colosseum Glory","Collections Logged"];
+const ACTIVITY_SET=new Set(ACTIVITY_LIST);
+
+function combatLevel(s){
+  const g=n=>s[n][0];
+  const base=0.25*(g("Defence")+g("Hitpoints")+Math.floor(g("Prayer")/2));
+  const melee=0.325*(g("Attack")+g("Strength"));
+  const range=0.325*Math.floor(g("Ranged")*1.5);
+  const mage=0.325*Math.floor(g("Magic")*1.5);
+  return Math.floor(base+Math.max(melee,range,mage));
+}
+const fmt=n=>n.toLocaleString("en-US");
+
+// --- state (persisted per viewer) ---
+let state={tab:"skills",mode:"level",active:ACCOUNTS.map(a=>a.key),sort:null,q:"",base:0,hz:"hide"};
+try{const s=JSON.parse(localStorage.getItem("ledger-state"));
+  if(s&&s.tab){state={...state,...s,q:""};
+    state.active=state.active.filter(k=>DATA[k]);
+    if(!state.active.length)state.active=ACCOUNTS.map(a=>a.key);}}catch(e){}
+state.end=Math.min(state.end===undefined?SNAPSHOTS.length-1:state.end,SNAPSHOTS.length-1);
+if(state.end<1)state.end=SNAPSHOTS.length-1;
+state.base=Math.min(state.base===undefined?state.end-1:state.base,state.end-1);
+if(state.base<0)state.base=0;
+function save(){try{localStorage.setItem("ledger-state",JSON.stringify(
+  {tab:state.tab,mode:state.mode,active:state.active,base:state.base,end:state.end,hz:state.hz}))}catch(e){}}
+
+// --- cards ---
+const cardsEl=document.getElementById("cards");
+function renderCards(){
+  cardsEl.innerHTML="";
+  for(const a of ACCOUNTS){
+    const d=DATA[a.key], on=state.active.includes(a.key);
+    const b=document.createElement("button");
+    b.className="card"+(on?"":" off");
+    b.style.setProperty("--acct",a.color);
+    b.setAttribute("aria-pressed",on);
+    b.innerHTML=`<div class="nm"><span class="dot"></span>${a.label}${a.you?'<span class="you">YOU</span>':''}</div>
+      <dl><dt>Total level</dt><dd>${fmt(d.skills.Overall[0])}</dd>
+      <dt>Total XP</dt><dd>${fmt(d.skills.Overall[1])}</dd>
+      <dt>Combat</dt><dd>${combatLevel(d.skills)}</dd>
+      <dt>Log slots</dt><dd>${d.temple?fmt(d.temple.slots[0])+" / "+fmt(d.temple.slots[1])
+        :fmt(d.activities["Collections Logged"]||0)}</dd></dl>
+      ${d.temple?"":'<div class="off-note">collection log not synced (TempleOSRS plugin)</div>'}
+      ${on?"":'<div class="off-note">hidden from comparison — click to restore</div>'}`;
+    b.onclick=()=>{
+      if(on){ if(state.active.length>1) state.active=state.active.filter(k=>k!==a.key); }
+      else state.active=ACCOUNTS.map(x=>x.key).filter(k=>state.active.includes(k)||k===a.key);
+      if(state.sort&&!state.active.includes(state.sort))state.sort=null;
+      save();render();
+    };
+    cardsEl.appendChild(b);
+  }
+}
+
+// --- controls ---
+const tabsEl=document.getElementById("tabs"),modeEl=document.getElementById("mode"),
+      zeroEl=document.getElementById("zeroseg"),searchEl=document.getElementById("search"),
+      rangeWrap=document.getElementById("rangewrap"),rangeBtn=document.getElementById("rangebtn"),
+      calPop=document.getElementById("calpop");
+
+// ---- Adobe-style snapshot range calendar ----
+const SNAP_IDX={};SNAPSHOTS.forEach((s,i)=>SNAP_IDX[s.date]=i);
+const MONTHS=["January","February","March","April","May","June","July","August",
+  "September","October","November","December"];
+let calView=null,pendingStart=null;
+function openCal(){
+  const d=SNAPSHOTS[state.end].date.split("-");
+  calView=new Date(+d[0],+d[1]-1,1);pendingStart=null;
+  calPop.hidden=false;renderCal();
+}
+function closeCal(){calPop.hidden=true;pendingStart=null;}
+rangeBtn.onclick=e=>{e.stopPropagation();calPop.hidden?openCal():closeCal();};
+document.addEventListener("click",e=>{if(!calPop.hidden&&!calPop.contains(e.target))closeCal();});
+document.addEventListener("keydown",e=>{if(e.key==="Escape")closeCal();});
+function pickDay(idx){
+  if(pendingStart===null){pendingStart=idx;renderCal();return;}
+  if(idx===pendingStart){pendingStart=null;renderCal();return;}
+  state.base=Math.min(pendingStart,idx);state.end=Math.max(pendingStart,idx);
+  pendingStart=null;save();closeCal();render();
+}
+function preset(kind){
+  const last=SNAPSHOTS.length-1;
+  if(kind==="all"){state.base=0;state.end=last;}
+  else{
+    const cutoff=new Date(Date.now()-(kind==="7"?7:30)*864e5).toISOString().slice(0,10);
+    let b=0;
+    SNAPSHOTS.forEach((s,i)=>{if(i<last&&s.date<=cutoff)b=i;});
+    state.base=b;state.end=last;
+  }
+  save();closeCal();render();
+}
+function renderCal(){
+  const y=calView.getFullYear(),m=calView.getMonth();
+  const first=(new Date(y,m,1).getDay()+6)%7, days=new Date(y,m+1,0).getDate();
+  const bd=SNAPSHOTS[pendingStart===null?state.base:pendingStart].date,
+        ed=pendingStart===null?SNAPSHOTS[state.end].date:bd;
+  let g=["Mo","Tu","We","Th","Fr","Sa","Su"].map(d=>`<span class="dow">${d}</span>`).join("");
+  for(let i=0;i<first;i++)g+=`<span class="d"></span>`;
+  for(let d=1;d<=days;d++){
+    const key=`${y}-${String(m+1).padStart(2,"0")}-${String(d).padStart(2,"0")}`;
+    const idx=SNAP_IDX[key];
+    let cls="d";
+    if(idx!==undefined){
+      cls+=" snap";
+      if(key===bd||key===ed)cls+=" sel";
+      else if(key>bd&&key<ed)cls+=" inrange";
+    }else if(key>bd&&key<ed)cls+=" inrange";
+    g+=`<span class="${cls}"${idx!==undefined?` data-i="${idx}"`:""}>${d}</span>`;
+  }
+  calPop.innerHTML=`
+    <div class="presets"><span class="pt">Presets</span>
+      <button data-p="7">Last 7 days</button>
+      <button data-p="30">Last 30 days</button>
+      <button data-p="all">All time</button></div>
+    <div class="cal">
+      <div class="mhead"><button data-nav="-1">‹</button>
+        <b>${MONTHS[m]} ${y}</b><button data-nav="1">›</button></div>
+      <div class="grid">${g}</div>
+      <div class="hint">${pendingStart===null?
+        "Highlighted days hold snapshots — click one to start a range.":
+        "Now click the end date (same day cancels)."}</div>
+    </div>`;
+  calPop.querySelectorAll("[data-nav]").forEach(b=>b.onclick=e=>{
+    e.stopPropagation();calView=new Date(y,m+ +b.dataset.nav,1);renderCal();});
+  calPop.querySelectorAll(".d.snap").forEach(el=>el.onclick=e=>{
+    e.stopPropagation();pickDay(+el.dataset.i);});
+  calPop.querySelectorAll("[data-p]").forEach(b=>b.onclick=e=>{
+    e.stopPropagation();preset(b.dataset.p);});
+}
+zeroEl.querySelectorAll("button").forEach(b=>b.onclick=()=>{
+  state.hz=b.dataset.z;save();render();});
+tabsEl.querySelectorAll("button").forEach(b=>b.onclick=()=>{
+  state.tab=b.dataset.tab;state.sort=null;save();render();});
+modeEl.querySelectorAll("button").forEach(b=>b.onclick=()=>{
+  state.mode=b.dataset.mode;save();render();});
+searchEl.addEventListener("input",()=>{state.q=searchEl.value.trim().toLowerCase();renderTable();});
+
+// --- table ---
+const headEl=document.getElementById("headrow"),bodyEl=document.getElementById("body");
+function acts(){return ACCOUNTS.filter(a=>state.active.includes(a.key));}
+function compareRows(){
+  const A=acts();
+  let out;
+  if(state.tab==="skills"){
+    out=SKILL_ORDER.map(sk=>({name:sk,
+      vals:A.map(a=>DATA[a.key].skills[sk][state.mode==="xp"?1:0]),
+      lvls:A.map(a=>DATA[a.key].skills[sk][0])}));
+  }else{
+    const list=state.tab==="bosses"?BOSS_LIST:ACTIVITY_LIST;
+    out=list.map(n=>({name:n,vals:A.map(a=>DATA[a.key].activities[n]||0)}));
+    if(state.hz!=="all")out=out.filter(r=>r.vals.some(v=>v>0));
+    out.sort((x,y)=>Math.max(...y.vals)-Math.max(...x.vals));
+  }
+  if(state.sort){
+    const i=A.findIndex(a=>a.key===state.sort);
+    if(i>=0)out.sort((x,y)=>y.vals[i]-x.vals[i]);
+  }
+  if(state.q)out=out.filter(r=>r.name.toLowerCase().includes(state.q));
+  return out;
+}
+function progressRows(){
+  const A=acts(), CUR=SNAPSHOTS[state.end].players, base=SNAPSHOTS[state.base].players;
+  const sk=[],bo=[];
+  for(const s of SKILL_ORDER){
+    const gains=A.map(a=>{
+      const now=CUR[a.key].skills[s],then=(base[a.key]||{skills:{}}).skills[s]||now;
+      return [now[1]-then[1],now[0]-then[0]];  // [xp gain, level gain]
+    });
+    if(gains.some(g=>g[0]>0))sk.push({name:s,vals:gains.map(g=>g[0]),lvls:gains.map(g=>g[1]),kind:"xp"});
+  }
+  const av=[];
+  const names=new Set();
+  for(const a of A){Object.keys(CUR[a.key].activities).forEach(n=>names.add(n));}
+  for(const n of names){
+    const gains=A.map(a=>{
+      const now=CUR[a.key].activities[n]||0,
+            then=(base[a.key]||{activities:{}}).activities[n]||0;
+      return Math.max(0,now-then);
+    });
+    if(gains.some(g=>g>0))(ACTIVITY_SET.has(n)?av:bo).push({name:n,vals:gains,kind:"kc"});
+  }
+  sk.sort((x,y)=>Math.max(...y.vals)-Math.max(...x.vals));
+  bo.sort((x,y)=>Math.max(...y.vals)-Math.max(...x.vals));
+  av.sort((x,y)=>Math.max(...y.vals)-Math.max(...x.vals));
+  // Collection log gains (TempleOSRS-synced accounts only). A first sync sets the
+  // baseline — items only count as gained between two snapshots that both have log data.
+  const cl=[];
+  const slotGains=A.map(a=>{
+    const nowT=CUR[a.key].temple,thenT=(base[a.key]||{}).temple;
+    return nowT&&thenT?Math.max(0,nowT.slots[0]-thenT.slots[0]):0;
+  });
+  if(slotGains.some(g=>g>0))cl.push({name:"Log slots filled",vals:slotGains,kind:"kc"});
+  const flatsNow=A.map(a=>flatItems(CUR[a.key].temple)),
+        flatsThen=A.map(a=>flatItems((base[a.key]||{}).temple));
+  const inames=new Set();
+  flatsNow.forEach(f=>{if(f)Object.keys(f).forEach(n=>inames.add(n));});
+  for(const n of inames){
+    const gains=A.map((a,i)=>{
+      if(!flatsNow[i]||!flatsThen[i])return 0;
+      return Math.max(0,(flatsNow[i][n]||0)-(flatsThen[i][n]||0));
+    });
+    if(gains.some(g=>g>0))cl.push({name:n,vals:gains,kind:"kc"});
+  }
+  cl.sort((x,y)=>x.name==="Log slots filled"?-1:y.name==="Log slots filled"?1:
+    Math.max(...y.vals)-Math.max(...x.vals));
+  let rows=[];
+  if(sk.length)rows.push({head:"Skills — XP gained"},...sk);
+  if(bo.length)rows.push({head:"Bosses — KC gained"},...bo);
+  if(av.length)rows.push({head:"Activities — score gained"},...av);
+  if(cl.length)rows.push({head:"Collection log — new items"},...cl);
+  if(state.q)rows=rows.filter(r=>r.head||r.name.toLowerCase().includes(state.q));
+  return rows;
+}
+function renderHead(A,firstLabel){
+  headEl.innerHTML=`<th${state.sort?"":' class="sorted"'} data-k="">${firstLabel}</th>`+
+    A.map(a=>`<th${state.sort===a.key?' class="sorted"':''} data-k="${a.key}">`+
+      `<span class="dot" style="background:${a.color}"></span>${a.label}</th>`).join("");
+  headEl.querySelectorAll("th").forEach(th=>th.onclick=()=>{
+    state.sort=th.dataset.k||null;save();renderTable();});
+}
+function renderTable(){
+  const A=acts();
+  if(state.tab==="progress"){
+    renderHead(A,"Gained");
+    if(SNAPSHOTS.length<2){
+      bodyEl.innerHTML=`<tr><td class="empty" colspan="${A.length+1}">Only one snapshot so far
+        (${LATEST.label}). Go grind, then ask Claude to refresh the ledger — every refresh becomes
+        a new snapshot and the gains show up here.</td></tr>`;
+      return;
+    }
+    const rows=progressRows();
+    if(!rows.some(r=>!r.head)){
+      bodyEl.innerHTML=`<tr><td class="empty" colspan="${A.length+1}">No gains between
+        ${SNAPSHOTS[state.base].label} and ${SNAPSHOTS[state.end].label} for the accounts shown.</td></tr>`;
+      return;
+    }
+    bodyEl.innerHTML=rows.map(r=>{
+      if(r.head)return `<tr class="grouphead"><td colspan="${A.length+1}">${r.head}</td></tr>`;
+      const max=Math.max(...r.vals),contested=new Set(r.vals).size>1;
+      return `<tr><td class="name">${r.name}</td>`+r.vals.map((v,i)=>{
+        if(v<=0)return `<td class="zero">—</td>`;
+        const cls=["gain"];if(contested&&v===max&&A.length>1)cls.push("lead");
+        let cell="+"+fmt(v);
+        if(r.kind==="xp"&&r.lvls[i]>0)cell+=`<span class="lv">+${r.lvls[i]} lvl</span>`;
+        return `<td class="${cls.join(" ")}">${cell}</td>`;
+      }).join("")+"</tr>";
+    }).join("");
+    return;
+  }
+  if(state.tab==="clog"){renderClog(A);return;}
+  renderHead(A,state.tab==="skills"?"Skill":state.tab==="bosses"?"Boss":"Activity");
+  const out=compareRows();
+  if(!out.length){
+    bodyEl.innerHTML=state.tab==="clog"&&!state.q?
+      `<tr><td class="empty" colspan="${A.length+1}">No account shown here has synced its
+        collection log yet — install the TempleOSRS RuneLite plugin, enable log sync, and open
+        the collection log in game.</td></tr>`:
+      `<tr><td class="empty" colspan="${A.length+1}">No rows match “${searchEl.value}”.</td></tr>`;
+    return;}
+  bodyEl.innerHTML=out.map(r=>{
+    const max=Math.max(...r.vals),contested=r.vals.some(v=>v>0)&&new Set(r.vals).size>1;
+    return `<tr><td class="name">${r.name}</td>`+r.vals.map((v,i)=>{
+      const cls=[];
+      if(v===0)cls.push("zero");
+      else{
+        if(contested&&v===max&&A.length>1)cls.push("lead");
+        if(state.tab==="skills"&&r.lvls[i]===99)cls.push("max99");
+      }
+      let cell=v===0?"—":fmt(v);
+      if(state.tab==="skills"&&state.mode==="level"&&v!==0)
+        cell=`${v}<span class="xp">${fmt(DATA[acts()[i].key].skills[r.name][1])} xp</span>`;
+      return `<td class="${cls.join(" ")}">${cell}</td>`;
+    }).join("")+"</tr>";
+  }).join("");
+}
+function renderClog(A){
+  renderHead(A,"Item");
+  if(!A.some(a=>DATA[a.key].temple)){
+    bodyEl.innerHTML=`<tr><td class="empty" colspan="${A.length+1}">No account shown here has
+      synced its collection log yet — install the TempleOSRS RuneLite plugin, enable log sync,
+      and open the collection log in game.</td></tr>`;
+    return;
+  }
+  const sortIdx=state.sort?A.findIndex(a=>a.key===state.sort):-1;
+  let html="";
+  if(!state.q){
+    const MO=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+    const fmtD=s=>{const[y,m,d]=s.slice(0,10).split("-");
+      return +d+" "+MO[+m-1]+(+y===new Date().getFullYear()?"":" "+y);};
+    const rec=[];
+    A.forEach((a,i)=>{const t=DATA[a.key].temple;
+      if(t&&t.recent)t.recent.forEach(r=>rec.push({name:r[0],date:r[1],notable:r[2],idx:i}));});
+    rec.sort((x,y)=>y.date.localeCompare(x.date));
+    html+=`<tr class="grouphead"><td colspan="${A.length+1}">Recent unlocks</td></tr>`;
+    if(rec.length){
+      html+=rec.slice(0,15).map(r=>
+        `<tr><td class="name">${r.notable?'<span style="color:var(--gold)">★</span> ':""}${r.name}</td>`+
+        A.map((a,i)=>i===r.idx?`<td class="gain">${fmtD(r.date)}</td>`:`<td class="zero"></td>`)
+          .join("")+"</tr>").join("");
+    }else{
+      html+=`<tr><td class="empty" colspan="${A.length+1}">No unlocks since first sync —
+        new collection log drops land here with their dates.</td></tr>`;
+    }
+  }
+  for(const g in CLOGCATS){
+    let ghtml="";
+    for(const slug in CLOGCATS[g]){
+      const total=CLOGCATS[g][slug], cname=catName(slug);
+      const per=A.map(a=>{const t=DATA[a.key].temple;
+        return t?(t.items[slug]||{}):null;});   // null = not synced
+      const has=per.some(m=>m&&Object.keys(m).length);
+      const catMatch=state.q&&cname.toLowerCase().includes(state.q);
+      let names=new Set();
+      per.forEach(m=>{if(m)Object.keys(m).forEach(n=>names.add(n));});
+      let items=[...names];
+      if(state.q&&!catMatch){
+        items=items.filter(n=>n.toLowerCase().includes(state.q));
+        if(!items.length)continue;
+      }else if(!state.q&&state.hz!=="all"&&!has)continue;
+      let rows=items.map(n=>({name:n,vals:per.map(m=>m?(m[n]||0):0)}));
+      rows.sort((x,y)=>sortIdx>=0?y.vals[sortIdx]-x.vals[sortIdx]:
+        Math.max(...y.vals)-Math.max(...x.vals)||x.name.localeCompare(y.name));
+      ghtml+=`<tr class="cathead"><td class="name">${cname}</td>`+
+        per.map((m,i)=>{
+          let kc="";
+          if(CLOG_KC[slug]){
+            const s=CLOG_KC[slug].reduce((t,n)=>t+(DATA[A[i].key].activities[n]||0),0);
+            if(s>0)kc=`<span class="kc">${fmt(s)} kc</span>`;
+          }
+          if(!m)return `<td class="zero">not synced${kc}</td>`;
+          const got=Object.keys(m).length;
+          return `<td class="${got>=total?"done":""}">${got} / ${total}${kc}</td>`;
+        }).join("")+"</tr>";
+      ghtml+=rows.map(r=>{
+        const max=Math.max(...r.vals),contested=r.vals.some(v=>v>0)&&new Set(r.vals).size>1;
+        return `<tr><td class="name">${r.name}</td>`+r.vals.map((v,i)=>{
+          if(v===0)return `<td class="zero">${per[i]?"—":""}</td>`;
+          return `<td class="${contested&&v===max&&A.length>1?"lead":""}">${fmt(v)}</td>`;
+        }).join("")+"</tr>";
+      }).join("");
+    }
+    if(ghtml)html+=`<tr class="grouphead"><td colspan="${A.length+1}">${GROUPLABEL[g]||g}</td></tr>`+ghtml;
+  }
+  bodyEl.innerHTML=html||`<tr><td class="empty" colspan="${A.length+1}">No items match
+    “${searchEl.value}”.</td></tr>`;
+}
+function render(){
+  renderCards();
+  tabsEl.querySelectorAll("button").forEach(b=>b.classList.toggle("on",b.dataset.tab===state.tab));
+  modeEl.hidden=state.tab!=="skills";
+  zeroEl.hidden=state.tab!=="bosses"&&state.tab!=="activities"&&state.tab!=="clog";
+  zeroEl.querySelectorAll("button").forEach(b=>b.classList.toggle("on",b.dataset.z===(state.hz==="all"?"all":"hide")));
+  rangeWrap.hidden=state.tab!=="progress"||SNAPSHOTS.length<2;
+  if(!rangeWrap.hidden)
+    rangeBtn.innerHTML=`📅 ${SNAPSHOTS[state.base].label} → ${SNAPSHOTS[state.end].label}`+
+      `${state.end===SNAPSHOTS.length-1?" (latest)":""}<span class="caret">▼</span>`;
+  modeEl.querySelectorAll("button").forEach(b=>b.classList.toggle("on",b.dataset.mode===state.mode));
+  renderTable();
+}
+render();
+
+})();/* ---- oracle ---- */
+(function(){
+
+const KC={"Papa Davo":{"Zulrah":1014,"Cerberus":580,"Kraken":587,"The Corrupted Gauntlet":404,"Alchemical Hydra":149,"Araxxor":291,"Duke Sucellus":376,"Vardorvis":142,"Yama":206,"The Royal Titans":489,"Abyssal Sire":550,"Vorkath":51},
+"GIM DogSauce":{"Zulrah":7,"Cerberus":0,"Kraken":0,"The Corrupted Gauntlet":2,"Alchemical Hydra":0,"Araxxor":0,"Duke Sucellus":1,"Vardorvis":1,"Yama":0,"The Royal Titans":313,"Abyssal Sire":0,"Vorkath":12},
+"GIM ArchNem":{"Zulrah":45,"Cerberus":0,"Kraken":0,"The Corrupted Gauntlet":61,"Alchemical Hydra":0,"Araxxor":0,"Duke Sucellus":1,"Vardorvis":4,"Yama":0,"The Royal Titans":123,"Abyssal Sire":0,"Vorkath":25}};
+
+const BOSSES=[
+ {name:"Zulrah",drops:[["Tanzanite fang",512],["Magic fang",512],["Serpentine visage",512],
+   ["Uncut onyx",512],["Either mutagen",3277],["Tanzanite mutagen",6554],["Magma mutagen",6554],
+   ["Jar of swamp",3000],["Pet snakeling",4000]]},
+ {name:"Cerberus",drops:[["Primordial crystal",520],["Pegasian crystal",520],["Eternal crystal",520],
+   ["Smouldering stone",520],["Any unique",130],["Jar of souls",2000],["Hellpuppy",3000]]},
+ {name:"Kraken",drops:[["Trident of the seas",512],["Kraken tentacle",400],["Jar of dirt",1000],
+   ["Pet kraken",3000]]},
+ {name:"The Corrupted Gauntlet",drops:[["Enhanced weapon seed",400],["Crystal armour seed",50],
+   ["Youngllef",800]]},
+ {name:"Alchemical Hydra",drops:[["Hydra's claw",1001],["Hydra tail",513],["Hydra leather",514],
+   ["Brimstone ring piece (each)",181],["Dragon knife",2001],["Jar of chemicals",2000],
+   ["Ikkle hydra",3000]]},
+ {name:"Araxxor",drops:[["Any halberd piece",200],["Specific halberd piece",600],["Araxyte fang",600],
+   ["Araxyte head",250],["Jar of venom",1500],["Nid",3000]]},
+ {name:"Duke Sucellus",drops:[["Magus vestige",720],["Chromium ingot",240],["Eye of the duke",720],
+   ["Virtus piece (each)",2160],["Baron",2500]]},
+ {name:"Vardorvis",drops:[["Ultor vestige",1088],["Chromium ingot",363],["Executioner's axe head",1088],
+   ["Virtus piece (each)",3264],["Butch",3000]]},
+ {name:"Yama",drops:[["Any oathplate piece",200],["Specific oathplate piece",600],["Soulflame horn",300],
+   ["Yami",2500]]},
+ {name:"The Royal Titans",drops:[["Deadeye prayer scroll",75],["Mystic vigour prayer scroll",75],
+   ["Staff crown (each)",75],["Giantsoul amulet",16],["Bran",3000]]},
+ {name:"Abyssal Sire",drops:[["Unsired",100]]},
+ {name:"Vorkath",drops:[["Draconic visage",5000],["Skeletal visage",5000],["Jar of decay",3000],
+   ["Vorki",3000]]},
+ {name:"Custom rate…",drops:[]},
+];
+
+const $=id=>document.getElementById(id);
+const fmt=n=>n.toLocaleString("en-US");
+let who="Papa Davo";
+
+const whoEl=$("who");
+for(const k of Object.keys(KC)){
+  const b=document.createElement("button");
+  b.textContent=k+(k==="Papa Davo"?" (you)":"");
+  b.dataset.k=k;
+  b.onclick=()=>{who=k;whoEl.querySelectorAll("button").forEach(x=>
+    x.classList.toggle("on",x.dataset.k===who));fillKC();calc();};
+  whoEl.appendChild(b);
+}
+whoEl.querySelector("button").classList.add("on");
+
+const bossEl=$("boss"),dropEl=$("drop");
+bossEl.innerHTML=BOSSES.map(b=>`<option>${b.name}</option>`).join("");
+function fillDrops(){
+  const b=BOSSES.find(x=>x.name===bossEl.value);
+  const custom=!b.drops.length;
+  $("customwrap").hidden=!custom;
+  dropEl.innerHTML=custom?`<option>Custom drop</option>`:
+    b.drops.map(d=>`<option value="${d[1]}">${d[0]} — 1/${fmt(d[1])}</option>`).join("");
+  dropEl.disabled=custom;
+}
+function fillKC(){
+  const kc=(KC[who]||{})[bossEl.value];
+  if(kc!==undefined){$("kc").value=kc;
+    $("kchint").textContent=`${who}'s hiscores KC (edit freely)`;}
+  else $("kchint").textContent="No hiscores KC for this pick — enter manually.";
+}
+bossEl.onchange=()=>{fillDrops();fillKC();calc();};
+dropEl.onchange=calc;
+["rate","kc","got"].forEach(id=>$(id).addEventListener("input",calc));
+
+// P(X <= k) for X ~ Binomial(n, p), computed in log space
+function binomCdf(k,n,p){
+  if(n<=0)return 1;
+  const lp=Math.log(p),lq=Math.log1p(-p);
+  let logTerm=n*lq,sum=0;         // i = 0 term
+  for(let i=0;i<=k;i++){
+    if(i>0)logTerm+=Math.log((n-i+1)/i)+lp-lq;
+    sum+=Math.exp(logTerm);
+    if(sum>=1){sum=1;break}
+  }
+  return Math.min(1,sum);
+}
+const need=(p,conf)=>Math.ceil(Math.log(1-conf)/Math.log1p(-p));
+
+function calc(){
+  const custom=$("customwrap").hidden===false;
+  const denom=custom?Math.max(2,+$("rate").value||512):+dropEl.value;
+  const p=1/denom, n=Math.max(0,Math.floor(+$("kc").value||0)),
+        k=Math.max(0,Math.floor(+$("got").value||0));
+  const exp=n*p;
+  const cdf=binomCdf(k,n,p);           // this many or fewer
+  const luckier=1-binomCdf(k===0?0:k-1,n,p)+0; // P(>= k)… not needed; percentile below
+  const pct=(1-cdf)*100;               // share of players who'd have MORE than you
+  let v,c;
+  if(n===0){v="No kills yet";c="var(--muted)"}
+  else if(cdf<=0.01){v="Cursed";c="var(--red)"}
+  else if(cdf<=0.10){v="Parched";c="var(--red)"}
+  else if(cdf<=0.35){v="Dry";c="var(--gold)"}
+  else if(cdf<=0.75){v="On rate";c="var(--ink)"}
+  else {v="Spooned";c="var(--green)"}
+  const verd=$("verdict");verd.textContent=v;verd.style.setProperty("--verdict",c);
+  $("verdictsub").textContent=n===0?"Enter a kill count to consult the oracle.":
+    `${fmt(k)} × ${dropEl.disabled?"custom drop":dropEl.options[dropEl.selectedIndex].text.split(" — ")[0]} in ${fmt(n)} kc at 1/${fmt(denom)}`;
+  $("meterbar").style.setProperty("--w",(cdf*100).toFixed(1)+"%");
+  $("s-exp").innerHTML=exp<0.005?"~0":exp.toFixed(2);
+  $("s-got").textContent=fmt(k);
+  $("s-pct").innerHTML=n===0?"—":`${cdf<=0.5?"bottom":"top"} ${(cdf<=0.5?cdf*100:100-cdf*100).toFixed(cdf*100<1||cdf*100>99?2:1)}%`;
+  $("s-odds").innerHTML=n===0||cdf>=0.999?"—":
+    `1 in ${fmt(Math.max(1,Math.round(1/cdf)))} <small>players</small>`;
+  const m=$("miles");
+  m.innerHTML=[["On drop rate",denom],["50% of players have it",need(p,.5)],
+    ["90% have it",need(p,.9)],["99% have it",need(p,.99)]]
+    .map(([lab,kcN])=>`<li class="${n>=kcN?"hit":""}"><span>${lab}</span><b>${fmt(kcN)} kc${n>=kcN?" ✓":""}</b></li>`).join("");
+}
+fillDrops();fillKC();calc();
+
+})();/* ---- upgrade ---- */
+(function(){
+
+const M=1e6;
+const ITEMS=[
+ // Melee
+ {c:"Melee",n:"Osmumten's fang",p:17790000,tag:"core",note:"Best-value melee upgrade in the game — ToA, Colosseum, general stabbing."},
+ {c:"Melee",n:"Amulet of torture",p:20230964,tag:"core"},
+ {c:"Melee",n:"Ferocious gloves (hydra leather)",p:9285240,tag:"core"},
+ {c:"Melee",n:"Primordial boots",p:18928606,tag:"core"},
+ {c:"Melee",n:"Avernic defender hilt",p:31076408,note:"Needs a dragon defender to combine."},
+ {c:"Melee",n:"Bandos chestplate",p:23654680,note:"Stepping stone if skipping straight to Torva feels steep."},
+ {c:"Melee",n:"Bandos tassets",p:16199999},
+ {c:"Melee",n:"Torva full helm",p:211221742,tag:"lux"},
+ {c:"Melee",n:"Torva platebody",p:173842222,tag:"lux"},
+ {c:"Melee",n:"Torva platelegs",p:109816491,tag:"lux"},
+ {c:"Melee",n:"Ultor ring",p:109000000,note:"Big DPS ring — you're 142 Vardorvis KC from a shot at your own vestige."},
+ {c:"Melee",n:"Bellator ring",p:20176471,note:"Pairs with fang for slash-weak content."},
+ {c:"Melee",n:"Dragon claws",p:38626678},
+ {c:"Melee",n:"Burning claws",p:3762044,note:"Budget spec weapon — 90% of d claws for 10% of the price."},
+ {c:"Melee",n:"Voidwaker",p:38411340,note:"Guaranteed-hit spec — great at Vardorvis and Colosseum."},
+ {c:"Melee",n:"Dragon hunter lance",p:48736498,note:"Only if you're doing lots of Cerberus/Hydra slayer."},
+ {c:"Melee",n:"Soulreaper axe",p:413000000,tag:"lux"},
+ {c:"Melee",n:"Oathplate helm",p:83135910,tag:"lux"},
+ {c:"Melee",n:"Oathplate chest",p:86100000,tag:"lux"},
+ {c:"Melee",n:"Oathplate legs",p:86084683,tag:"lux"},
+ // Ranged
+ {c:"Ranged",n:"Toxic blowpipe (empty)",p:9765432,tag:"core"},
+ {c:"Ranged",n:"Necklace of anguish",p:20394928,tag:"core"},
+ {c:"Ranged",n:"Enhanced crystal weapon seed (bowfa)",p:117000000,tag:"core",note:"With 404 CG kc you know the grind — buying skips the RNG. Needs crystal armour to sing."},
+ {c:"Ranged",n:"Crystal armour seed (per seed, ×6)",p:5805437,tag:"core"},
+ {c:"Ranged",n:"Armadyl chestplate",p:37444000,note:"Skip if going straight to Masori."},
+ {c:"Ranged",n:"Armadyl chainskirt",p:28072960},
+ {c:"Ranged",n:"Masori mask (f)",p:18469991},
+ {c:"Ranged",n:"Masori body (f)",p:80722976},
+ {c:"Ranged",n:"Masori chaps (f)",p:56720785},
+ {c:"Ranged",n:"Zaryte vambraces",p:74007964},
+ {c:"Ranged",n:"Pegasian boots",p:35831070},
+ {c:"Ranged",n:"Dragon hunter crossbow",p:30323939,note:"Vorkath/Hydra specialist."},
+ {c:"Ranged",n:"Venator bow (uncharged)",p:63690708,note:"AoE chinning for slayer — huge xp/hr."},
+ {c:"Ranged",n:"Venator ring",p:48499575},
+ {c:"Ranged",n:"Zaryte crossbow",p:362500000,tag:"lux"},
+ {c:"Ranged",n:"Twisted bow",p:1395475499,tag:"lux",note:"The endgame. CoX, Zuk, Nex — the item that changes what you can do."},
+ // Magic
+ {c:"Magic",n:"Occult necklace",p:412648,tag:"core",note:"400k for +10% magic damage. If unticked, buy it before closing this page."},
+ {c:"Magic",n:"Tormented bracelet",p:20400000,tag:"core"},
+ {c:"Magic",n:"Eternal boots",p:4118000,tag:"core"},
+ {c:"Magic",n:"Elidinis' ward",p:3761693,note:"Basic (f) upgrade needs arcane sigil + 90 smithing/prayer to bless."},
+ {c:"Magic",n:"Sanguinesti staff (uncharged)",p:17601320,note:"Sustain + damage; ToB's gift to everyone else."},
+ {c:"Magic",n:"Kodai wand",p:55300000},
+ {c:"Magic",n:"Magus ring",p:23569562,note:"Duke drops it — you're 376 kc deep already."},
+ {c:"Magic",n:"Ancestral hat",p:47532725},
+ {c:"Magic",n:"Ancestral robe top",p:92234199},
+ {c:"Magic",n:"Ancestral robe bottom",p:69000000},
+ {c:"Magic",n:"Tumeken's shadow (uncharged)",p:799799090,tag:"lux"},
+ // Utility & prayer
+ {c:"Utility & prayer",n:"Lightbearer",p:4189999,note:"You own this one already."},
+ {c:"Utility & prayer",n:"Arcane prayer scroll",p:5264970,tag:"core"},
+ {c:"Utility & prayer",n:"Dexterous prayer scroll",p:17244485,tag:"core",note:"Rigour is the biggest prayer upgrade in the game."},
+ {c:"Utility & prayer",n:"Emberlight (tormented synapse)",p:37831601,note:"Demonbane — Cerberus, K'ril, Duke, Tormented demons."},
+];
+const CATS=[...new Set(ITEMS.map(i=>i.c))];
+const fmtGp=v=>v>=1e9?(v/1e9).toFixed(2)+"b":v>=1e6?(v/1e6).toFixed(1)+"m":Math.round(v/1e3)+"k";
+
+let owned={};
+try{owned=JSON.parse(localStorage.getItem("upgrade-owned"))||{}}catch(e){}
+if(!("Lightbearer" in owned))owned["Lightbearer"]=true; // mentioned in chat
+let view="all";
+try{view=localStorage.getItem("upgrade-view")||"all"}catch(e){}
+function save(){try{localStorage.setItem("upgrade-owned",JSON.stringify(owned));
+  localStorage.setItem("upgrade-view",view)}catch(e){}}
+
+const secEl=document.getElementById("sections");
+function render(){
+  document.querySelectorAll("#view button").forEach(b=>b.classList.toggle("on",b.dataset.v===view));
+  let left=0,own=0,cnt=0;
+  for(const i of ITEMS){if(owned[i.n]){own+=i.p;cnt++}else left+=i.p}
+  document.getElementById("t-left").textContent=fmtGp(left)+" gp";
+  document.getElementById("t-own").textContent=fmtGp(own)+" gp";
+  document.getElementById("t-count").textContent=cnt+" / "+ITEMS.length;
+  secEl.innerHTML="";
+  for(const c of CATS){
+    let items=ITEMS.filter(i=>i.c===c);
+    if(view==="todo")items=items.filter(i=>!owned[i.n]);
+    if(view==="core")items=items.filter(i=>i.tag==="core");
+    if(!items.length)continue;
+    const rem=items.filter(i=>!owned[i.n]).reduce((s,i)=>s+i.p,0);
+    const s=document.createElement("section");
+    s.innerHTML=`<h2>${c}<span class="sub">${fmtGp(rem)} gp to go</span></h2>`;
+    const box=document.createElement("div");box.className="items";
+    for(const i of items){
+      const row=document.createElement("label");
+      row.className="item"+(owned[i.n]?" owned":"");
+      row.innerHTML=`<input type="checkbox" ${owned[i.n]?"checked":""}>
+        <span class="nm">${i.n}${i.tag?`<span class="tag${i.tag==="lux"?" lux":""}">${i.tag==="lux"?"LUX":"CORE"}</span>`:""}</span>
+        <span class="pr">${fmtGp(i.p)}</span>
+        ${i.note?`<span class="note">${i.note}</span>`:""}`;
+      row.querySelector("input").onchange=e=>{owned[i.n]=e.target.checked;save();render();};
+      box.appendChild(row);
+    }
+    s.appendChild(box);secEl.appendChild(s);
+  }
+}
+document.querySelectorAll("#view button").forEach(b=>b.onclick=()=>{view=b.dataset.v;save();render();});
+render();
+
+})();
+</script>
+</body>
+</html>
