@@ -38,8 +38,6 @@ h1 .sub{color:var(--ink)}
 .card .nm{font-family:var(--display);font-weight:600;font-size:15px;letter-spacing:.02em;
   display:flex;align-items:center;gap:8px;margin-bottom:8px}
 .card .dot{width:9px;height:9px;border-radius:50%;background:var(--acct);flex:none}
-.card .you{font-family:var(--sans);font-size:10px;font-weight:600;letter-spacing:.08em;
-  color:var(--ground);background:var(--acct);border-radius:3px;padding:1px 5px;margin-left:auto}
 .card dl{display:grid;grid-template-columns:auto 1fr;gap:2px 12px;margin:0}
 .card dt{color:var(--muted);font-size:12px}
 .card dd{margin:0;text-align:right;font-family:var(--mono);font-size:12.5px;font-variant-numeric:tabular-nums}
@@ -243,7 +241,7 @@ const LATEST=SNAPSHOTS[SNAPSHOTS.length-1], DATA=LATEST.players;
 document.getElementById("snapdate").textContent=LATEST.label;
 
 const ACCOUNTS = [
-  {key:"Papa Davo",  label:"Papa Davo",     color:"var(--c-davo)", you:true},
+  {key:"Papa Davo",  label:"Papa Davo",     color:"var(--c-davo)"},
   {key:"GIM DogSauce", label:"GIM DogSauce", color:"var(--c-dog)"},
   {key:"GIM ArchNem",  label:"GIM ArchNem",  color:"var(--c-arch)"},
 ];
@@ -308,7 +306,7 @@ function renderCards(){
     b.className="card"+(on?"":" off");
     b.style.setProperty("--acct",a.color);
     b.setAttribute("aria-pressed",on);
-    b.innerHTML=`<div class="nm"><span class="dot"></span>${a.label}${a.you?'<span class="you">YOU</span>':''}</div>
+    b.innerHTML=`<div class="nm"><span class="dot"></span>${a.label}</div>
       <dl><dt>Total level</dt><dd>${fmt(d.skills.Overall[0])}</dd>
       <dt>Total XP</dt><dd>${fmt(d.skills.Overall[1])}</dd>
       <dt>Combat</dt><dd>${combatLevel(d.skills)}</dd>
