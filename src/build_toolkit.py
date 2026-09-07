@@ -103,7 +103,7 @@ def main():
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>OSRS Toolkit</title>
+<title>Quit Smoking — Group Highscores</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
 <style>
 {SHELL_CSS}
@@ -111,7 +111,7 @@ def main():
 </style>
 </head>
 <body>
-<nav><span class="brand">OSRS Toolkit</span>{"".join(tabs)}</nav>
+<nav><span class="brand">Quit Smoking</span>{"".join(tabs)}</nav>
 {"".join(parts_html)}
 <script>
 (function(){{
