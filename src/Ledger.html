@@ -150,6 +150,7 @@ footer b{color:var(--muted);font-weight:500}
     <button data-tab="activities" role="tab">Activities</button>
     <button data-tab="clog" role="tab">Collection Log</button>
     <button data-tab="quests" role="tab">Quests</button>
+    <button data-tab="achv" role="tab">Achievements</button>
     <button data-tab="progress" role="tab">Progress</button>
   </div>
   <div class="seg" id="mode" hidden>
@@ -183,8 +184,8 @@ footer b{color:var(--muted);font-weight:500}
   Bosses and Activities cover the complete official hiscores roster — "Show all" reveals
   everything nobody has touched yet. (Monsters like Tormented Demons aren't on Jagex's hiscores —
   their progress shows up via collection log items instead, once an account has synced with the
-  TempleOSRS RuneLite plugin.) <b>Quests</b> come from the RuneProfile plugin, and cover
-  free-to-play, members and miniquests with quest points.
+  TempleOSRS RuneLite plugin.) <b>Quests</b> and <b>Achievements</b> (diaries and combat
+  achievements) come from the RuneProfile plugin.
   The <b>Progress</b> tab compares snapshots — skills, bosses,
   activities, and new collection log items all in one place. Ask Claude to refresh the ledger any
   time; each refresh becomes a new point to diff against.
@@ -552,6 +553,7 @@ function renderTable(){
   }
   if(state.tab==="clog"){renderClog(A);return;}
   if(state.tab==="quests"){renderQuests(A);return;}
+  if(state.tab==="achv"){renderAchv(A);return;}
   renderHead(A,state.tab==="skills"?"Skill":state.tab==="bosses"?"Boss":"Activity");
   const out=compareRows();
   if(!out.length){
@@ -627,6 +629,70 @@ function renderQuests(A){
       state.qf==="todo"&&!state.q?"Every quest is finished — nothing left.":
       `No quests match “${searchEl.value}”.`}</td></tr>`;
   bodyEl.innerHTML=html;
+}
+const DIARY_TIERS=["Easy","Medium","Hard","Elite"],
+      CA_TIERS=["Easy","Medium","Hard","Elite","Master","Grandmaster"];
+function renderAchv(A){
+  renderHead(A,"Area / tier");
+  const withData=A.filter(a=>DATA[a.key].diaries||DATA[a.key].ca);
+  if(!withData.length){
+    bodyEl.innerHTML=`<tr><td class="empty" colspan="${A.length+1}">No account shown here has
+      synced — diaries and combat achievements come from the RuneProfile RuneLite plugin.</td></tr>`;
+    return;
+  }
+  // Areas and task totals are unioned across accounts: RuneProfile omits any tier
+  // with nothing done, so a tier missing everywhere is simply "not started".
+  const areas=[],totals={};
+  for(const a of A){
+    const d=DATA[a.key].diaries;if(!d)continue;
+    for(const k in d){
+      const [area]=k.split("|");
+      if(!areas.includes(area))areas.push(area);
+      totals[k]=Math.max(totals[k]||0,d[k][1]);
+    }
+  }
+  const cell=(v,t)=>v===null?`<td class="zero">not synced</td>`:
+    t?`<td class="${v>=t?"done":""}">${v} / ${t}</td>`:`<td class="zero">not started</td>`;
+  let html="";
+  if(areas.length){
+    html+=`<tr class="grouphead"><td colspan="${A.length+1}">Achievement diaries</td></tr>`;
+    for(const area of areas){
+      if(state.q&&!area.toLowerCase().includes(state.q))continue;
+      html+=`<tr class="cathead"><td class="name">${area}</td>`+A.map(a=>{
+        const d=DATA[a.key].diaries;if(!d)return `<td class="zero">not synced</td>`;
+        let got=0,tot=0;
+        for(const t of DIARY_TIERS){const k=area+"|"+t;
+          got+=(d[k]||[0])[0];tot+=totals[k]||0;}
+        return `<td class="${tot&&got>=tot?"done":""}">${got} / ${tot}</td>`;
+      }).join("")+"</tr>";
+      html+=DIARY_TIERS.map(t=>{
+        const k=area+"|"+t;
+        return `<tr><td class="name">${t}</td>`+A.map(a=>{
+          const d=DATA[a.key].diaries;
+          return cell(d?(d[k]||[0])[0]:null,totals[k]||0);
+        }).join("")+"</tr>";
+      }).join("");
+    }
+  }
+  const caTot={};
+  for(const a of A){const c=DATA[a.key].ca;if(!c)continue;
+    for(const t in c.tiers)caTot[t]=Math.max(caTot[t]||0,c.tiers[t][1]);}
+  if(Object.keys(caTot).length&&(!state.q||"combat achievements".includes(state.q))){
+    html+=`<tr class="grouphead"><td colspan="${A.length+1}">Combat achievements</td></tr>`;
+    html+=`<tr class="cathead"><td class="name">All tiers</td>`+A.map(a=>{
+      const c=DATA[a.key].ca;if(!c)return `<td class="zero">not synced</td>`;
+      let got=0,tot=0;
+      for(const t of CA_TIERS){got+=(c.tiers[t]||[0])[0];tot+=caTot[t]||0;}
+      return `<td>${got} / ${tot}`+
+        (c.points?`<span class="kc">${fmt(c.points)} pts</span>`:"")+`</td>`;
+    }).join("")+"</tr>";
+    html+=CA_TIERS.map(t=>`<tr><td class="name">${t}</td>`+A.map(a=>{
+      const c=DATA[a.key].ca;
+      return cell(c?(c.tiers[t]||[0])[0]:null,caTot[t]||0);
+    }).join("")+"</tr>").join("");
+  }
+  bodyEl.innerHTML=html||`<tr><td class="empty" colspan="${A.length+1}">Nothing matches
+    “${searchEl.value}”.</td></tr>`;
 }
 function renderStart(A){
   const S0=SNAPSHOTS[0].players;

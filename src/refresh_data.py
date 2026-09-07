@@ -57,6 +57,21 @@ def fetch_player(name):
         done = sum(1 for x in quests if x["state"] == 2)
         print(f"    quests: {done}/{len(quests)} done, {p['quests']['qp']} QP "
               f"(RuneProfile, synced {p['quests']['synced']})")
+        # Same payload carries diaries and combat achievements.
+        # RuneProfile omits any tier with 0 tasks done, so absent == not started.
+        diaries = rp.get("achievementDiaryTiers") or []
+        if diaries:
+            p["diaries"] = {f"{d['area']}|{d['tierName']}":
+                            [d["completedCount"], d["tasksCount"]] for d in diaries}
+            print(f"    diaries: {sum(d['completedCount'] for d in diaries)}"
+                  f"/{sum(d['tasksCount'] for d in diaries)} tasks in {len(diaries)} tiers")
+        ca = rp.get("combatAchievementTiers") or []
+        if ca:
+            p["ca"] = {"points": rp.get("totalCombatAchievementPoints") or 0,
+                       "reached": rp.get("combatAchievementTierReached") or 0,
+                       "tiers": {t["name"]: [t["completedCount"], t["tasksCount"]] for t in ca}}
+            print(f"    combat achievements: {sum(t['completedCount'] for t in ca)}"
+                  f"/{sum(t['tasksCount'] for t in ca)} tasks, {p['ca']['points']} pts")
     except Exception:
         print("    quests: not on RuneProfile")
     return p
