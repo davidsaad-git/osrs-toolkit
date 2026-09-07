@@ -232,7 +232,7 @@ nav button:focus-visible{outline:2px solid var(--gold);outline-offset:-2px}
 
 #t-ledger td .lv{color:var(--gold);font-size:11px;margin-left:6px}
 
-#t-ledger .empty{padding:28px;text-align:center;color:var(--faint)}
+#t-ledger .empty{padding:28px;text-align:center;color:var(--faint);white-space:normal}
 
 #t-ledger footer{margin-top:16px;font-size:12px;color:var(--faint);line-height:1.6}
 
@@ -885,9 +885,10 @@ if(state.end<1)state.end=SNAPSHOTS.length-1;
 state.base=Math.min(state.base===undefined?state.end-1:state.base,state.end-1);
 if(state.base<0)state.base=0;
 state.single=!!state.single&&state.end-state.base===1;
+state.start=!!state.start;
 function save(){try{localStorage.setItem("ledger-state",JSON.stringify(
   {tab:state.tab,mode:state.mode,active:state.active,base:state.base,end:state.end,
-   single:state.single,hz:state.hz}))}catch(e){}}
+   single:state.single,start:state.start,hz:state.hz}))}catch(e){}}
 
 // --- cards ---
 const cardsEl=document.getElementById("cards");
@@ -941,12 +942,13 @@ function pickDay(idx){
   if(pendingStart===null){pendingStart=idx;renderCal();return;}
   if(idx===pendingStart){
     // Same day twice = view just that day (gains since the previous snapshot).
-    if(idx===0){pendingStart=null;renderCal();return;} // nothing earlier to diff against
-    state.base=idx-1;state.end=idx;state.single=true;
+    // The first snapshot has no "before", so it shows the starting totals instead.
+    if(idx===0){state.start=true;state.single=false;}
+    else{state.base=idx-1;state.end=idx;state.single=true;state.start=false;}
     pendingStart=null;save();closeCal();render();return;
   }
   state.base=Math.min(pendingStart,idx);state.end=Math.max(pendingStart,idx);
-  state.single=false;
+  state.single=false;state.start=false;
   pendingStart=null;save();closeCal();render();
 }
 function preset(kind){
@@ -958,15 +960,16 @@ function preset(kind){
     SNAPSHOTS.forEach((s,i)=>{if(i<last&&s.date<=cutoff)b=i;});
     state.base=b;state.end=last;
   }
-  state.single=false;
+  state.single=false;state.start=false;
   save();closeCal();render();
 }
 function renderCal(){
   const y=calView.getFullYear(),m=calView.getMonth();
   const first=(new Date(y,m,1).getDay()+6)%7, days=new Date(y,m+1,0).getDate();
   const bd=pendingStart!==null?SNAPSHOTS[pendingStart].date:
+        state.start?SNAPSHOTS[0].date:
         state.single?SNAPSHOTS[state.end].date:SNAPSHOTS[state.base].date,
-        ed=pendingStart!==null?bd:SNAPSHOTS[state.end].date;
+        ed=pendingStart!==null||state.start?bd:SNAPSHOTS[state.end].date;
   let g=["Mo","Tu","We","Th","Fr","Sa","Su"].map(d=>`<span class="dow">${d}</span>`).join("");
   for(let i=0;i<first;i++)g+=`<span class="d"></span>`;
   for(let d=1;d<=days;d++){
@@ -1094,7 +1097,8 @@ function renderHead(A,firstLabel){
 function renderTable(){
   const A=acts();
   if(state.tab==="progress"){
-    renderHead(A,"Gained");
+    renderHead(A,state.start?"Starting totals":"Gained");
+    if(state.start){renderStart(A);return;}
     if(SNAPSHOTS.length<2){
       bodyEl.innerHTML=`<tr><td class="empty" colspan="${A.length+1}">Only one snapshot so far
         (${LATEST.label}). Go grind, then ask Claude to refresh the ledger — every refresh becomes
@@ -1144,6 +1148,34 @@ function renderTable(){
         cell=`${v}<span class="xp">${fmt(DATA[acts()[i].key].skills[r.name][1])} xp</span>`;
       return `<td class="${cls.join(" ")}">${cell}</td>`;
     }).join("")+"</tr>";
+  }).join("");
+}
+function renderStart(A){
+  const S0=SNAPSHOTS[0].players;
+  let rows=[{note:`${SNAPSHOTS[0].label} is the starting point — the day data collection began.
+    Everything below is what each account brought in; all Progress gains are measured from here.`}];
+  rows.push({head:"Skills — starting level & XP"},
+    ...SKILL_ORDER.map(s=>({name:s,kind:"skill",vals:A.map(a=>S0[a.key].skills[s])})));
+  const bo=[],av=[],names=new Set();
+  for(const a of A)Object.keys(S0[a.key].activities).forEach(n=>names.add(n));
+  for(const n of names){
+    const vals=A.map(a=>S0[a.key].activities[n]||0);
+    if(vals.some(v=>v>0))(ACTIVITY_SET.has(n)?av:bo).push({name:n,vals});
+  }
+  bo.sort((x,y)=>Math.max(...y.vals)-Math.max(...x.vals));
+  av.sort((x,y)=>Math.max(...y.vals)-Math.max(...x.vals));
+  if(bo.length)rows.push({head:"Bosses — starting KC"},...bo);
+  if(av.length)rows.push({head:"Activities — starting score"},...av);
+  if(state.q)rows=rows.filter(r=>r.note||r.head||r.name.toLowerCase().includes(state.q));
+  bodyEl.innerHTML=rows.map(r=>{
+    if(r.note)return `<tr><td class="empty" colspan="${A.length+1}">${r.note}</td></tr>`;
+    if(r.head)return `<tr class="grouphead"><td colspan="${A.length+1}">${r.head}</td></tr>`;
+    if(r.kind==="skill")
+      return `<tr><td class="name">${r.name}</td>`+r.vals.map(v=>
+        `<td class="${v[0]===99?"max99":""}">${v[0]}<span class="xp">${fmt(v[1])} xp</span></td>`)
+        .join("")+"</tr>";
+    return `<tr><td class="name">${r.name}</td>`+r.vals.map(v=>
+      v===0?`<td class="zero">—</td>`:`<td>${fmt(v)}</td>`).join("")+"</tr>";
   }).join("");
 }
 function renderClog(A){
@@ -1225,7 +1257,9 @@ function render(){
   zeroEl.querySelectorAll("button").forEach(b=>b.classList.toggle("on",b.dataset.z===(state.hz==="all"?"all":"hide")));
   rangeWrap.hidden=state.tab!=="progress"||SNAPSHOTS.length<2;
   if(!rangeWrap.hidden)
-    rangeBtn.innerHTML=state.single?
+    rangeBtn.innerHTML=state.start?
+      `📅 ${SNAPSHOTS[0].label} <span class="caret">— starting point&nbsp;</span><span class="caret">▼</span>`:
+      state.single?
       `📅 ${SNAPSHOTS[state.end].label} <span class="caret">— that day&nbsp;</span><span class="caret">▼</span>`:
       `📅 ${SNAPSHOTS[state.base].label} → ${SNAPSHOTS[state.end].label}`+
       `${state.end===SNAPSHOTS.length-1?" (latest)":""}<span class="caret">▼</span>`;
