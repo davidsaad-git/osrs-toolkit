@@ -149,6 +149,7 @@ footer b{color:var(--muted);font-weight:500}
     <button data-tab="bosses" role="tab">Bosses</button>
     <button data-tab="activities" role="tab">Activities</button>
     <button data-tab="clog" role="tab">Collection Log</button>
+    <button data-tab="quests" role="tab">Quests</button>
     <button data-tab="progress" role="tab">Progress</button>
   </div>
   <div class="seg" id="mode" hidden>
@@ -158,6 +159,10 @@ footer b{color:var(--muted);font-weight:500}
   <div class="seg" id="zeroseg" hidden>
     <button data-z="hide">Hide untouched</button>
     <button data-z="all">Show all</button>
+  </div>
+  <div class="seg" id="questseg" hidden>
+    <button data-q="all">All quests</button>
+    <button data-q="todo">Unfinished only</button>
   </div>
   <div class="range" id="rangewrap" hidden>
     <button id="rangebtn" aria-haspopup="dialog"></button>
@@ -178,7 +183,9 @@ footer b{color:var(--muted);font-weight:500}
   Bosses and Activities cover the complete official hiscores roster — "Show all" reveals
   everything nobody has touched yet. (Monsters like Tormented Demons aren't on Jagex's hiscores —
   their progress shows up via collection log items instead, once an account has synced with the
-  TempleOSRS RuneLite plugin.) The <b>Progress</b> tab compares snapshots — skills, bosses,
+  TempleOSRS RuneLite plugin.) <b>Quests</b> come from the RuneProfile plugin, and cover
+  free-to-play, members and miniquests with quest points.
+  The <b>Progress</b> tab compares snapshots — skills, bosses,
   activities, and new collection log items all in one place. Ask Claude to refresh the ledger any
   time; each refresh becomes a new point to diff against.
 </footer>
@@ -190,6 +197,8 @@ footer b{color:var(--muted);font-weight:500}
 // items:{"Item name":count}} from TempleOSRS collection-log API (only for synced accounts).
 const SNAPSHOTS = __SNAPSHOTS__;
 const CLOGCATS=__CLOGCATS__;
+const QUESTS=__QUESTS__;   // [{n:name,t:0 f2p|1 members|2 miniquest,p:points}] — state strings index this
+const QTYPE=[["0","Free-to-play"],["1","Members"],["2","Miniquests"]];
 const GROUPLABEL={bosses:"Bosses",raids:"Raids",clues:"Clues",minigames:"Minigames",other:"Other"};
 const SMALLWORDS=new Set(["of","the","and","a","in","to"]);
 const catName=slug=>slug.split("_").map((w,i)=>
@@ -287,7 +296,8 @@ function combatLevel(s){
 const fmt=n=>n.toLocaleString("en-US");
 
 // --- state (persisted per viewer) ---
-let state={tab:"skills",mode:"level",active:ACCOUNTS.map(a=>a.key),sort:null,q:"",base:0,hz:"hide"};
+let state={tab:"skills",mode:"level",active:ACCOUNTS.map(a=>a.key),sort:null,q:"",base:0,
+  hz:"hide",qf:"all"};
 try{const s=JSON.parse(localStorage.getItem("ledger-state"));
   if(s&&s.tab){state={...state,...s,q:""};
     state.active=state.active.filter(k=>DATA[k]);
@@ -300,7 +310,7 @@ state.single=!!state.single&&state.end-state.base===1;
 state.start=!!state.start;
 function save(){try{localStorage.setItem("ledger-state",JSON.stringify(
   {tab:state.tab,mode:state.mode,active:state.active,base:state.base,end:state.end,
-   single:state.single,start:state.start,hz:state.hz}))}catch(e){}}
+   single:state.single,start:state.start,hz:state.hz,qf:state.qf}))}catch(e){}}
 
 // --- cards ---
 const cardsEl=document.getElementById("cards");
@@ -317,7 +327,8 @@ function renderCards(){
       <dt>Total XP</dt><dd>${fmt(d.skills.Overall[1])}</dd>
       <dt>Combat</dt><dd>${combatLevel(d.skills)}</dd>
       <dt>Log slots</dt><dd>${d.temple?fmt(d.temple.slots[0])+" / "+fmt(d.temple.slots[1])
-        :fmt(d.activities["Collections Logged"]||0)}</dd></dl>
+        :fmt(d.activities["Collections Logged"]||0)}</dd>
+      ${d.quests?`<dt>Quest points</dt><dd>${fmt(d.quests.qp)}</dd>`:""}</dl>
       ${d.temple?"":'<div class="off-note">collection log not synced (TempleOSRS plugin)</div>'}
       ${on?"":'<div class="off-note">hidden from comparison — click to restore</div>'}`;
     b.onclick=()=>{
@@ -417,6 +428,9 @@ function renderCal(){
 }
 zeroEl.querySelectorAll("button").forEach(b=>b.onclick=()=>{
   state.hz=b.dataset.z;save();render();});
+const questEl=document.getElementById("questseg");
+questEl.querySelectorAll("button").forEach(b=>b.onclick=()=>{
+  state.qf=b.dataset.q;save();render();});
 tabsEl.querySelectorAll("button").forEach(b=>b.onclick=()=>{
   state.tab=b.dataset.tab;state.sort=null;save();render();});
 modeEl.querySelectorAll("button").forEach(b=>b.onclick=()=>{
@@ -537,6 +551,7 @@ function renderTable(){
     return;
   }
   if(state.tab==="clog"){renderClog(A);return;}
+  if(state.tab==="quests"){renderQuests(A);return;}
   renderHead(A,state.tab==="skills"?"Skill":state.tab==="bosses"?"Boss":"Activity");
   const out=compareRows();
   if(!out.length){
@@ -561,6 +576,57 @@ function renderTable(){
       return `<td class="${cls.join(" ")}">${cell}</td>`;
     }).join("")+"</tr>";
   }).join("");
+}
+function questState(p,i){            // "2" done · "1" started · "0"/absent not started
+  const q=p.quests;if(!q)return null;
+  return q.state.charAt(i)||"0";
+}
+function renderQuests(A){
+  renderHead(A,"Quest");
+  if(!A.some(a=>DATA[a.key].quests)){
+    bodyEl.innerHTML=`<tr><td class="empty" colspan="${A.length+1}">No account shown here has
+      synced its quests — quest data comes from the RuneProfile RuneLite plugin
+      (Plugin Hub → RuneProfile), which syncs automatically once installed.</td></tr>`;
+    return;
+  }
+  const MO=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  let html=`<tr><td class="empty" colspan="${A.length+1}">Quest data comes from the RuneProfile
+    plugin — ${A.map(a=>{const q=DATA[a.key].quests;
+      if(!q)return `<b>${a.label}</b> not synced`;
+      const d=q.synced.split("-");
+      return `<b>${a.label}</b> synced ${+d[2]} ${MO[+d[1]-1]}`;}).join(" · ")}.</td></tr>`;
+  for(const [t,label] of QTYPE){
+    const idxs=QUESTS.map((q,i)=>[q,i]).filter(([q])=>String(q.t)===t);
+    if(!idxs.length)continue;
+    let rows=idxs;
+    if(state.q)rows=rows.filter(([q])=>q.n.toLowerCase().includes(state.q));
+    if(state.qf==="todo")rows=rows.filter(([,i])=>
+      A.some(a=>{const s=questState(DATA[a.key],i);return s&&s!=="2";}));
+    if(!rows.length)continue;
+    html+=`<tr class="grouphead"><td colspan="${A.length+1}">${label}</td></tr>`;
+    html+=`<tr class="cathead"><td class="name">Completed</td>`+A.map(a=>{
+      const p=DATA[a.key];
+      if(!p.quests)return `<td class="zero">not synced</td>`;
+      const done=idxs.filter(([,i])=>questState(p,i)==="2").length,
+            pts=idxs.filter(([,i])=>questState(p,i)==="2").reduce((s,[q])=>s+q.p,0);
+      return `<td class="${done>=idxs.length?"done":""}">${done} / ${idxs.length}`+
+        (pts?`<span class="kc">${pts} qp</span>`:"")+`</td>`;
+    }).join("")+"</tr>";
+    html+=rows.map(([q,i])=>
+      `<tr><td class="name">${q.n}${q.p?`<span class="xp">${q.p} qp</span>`:""}</td>`+
+      A.map(a=>{
+        const s=questState(DATA[a.key],i);
+        if(s===null)return `<td class="zero"></td>`;
+        if(s==="2")return `<td class="max99">done</td>`;
+        if(s==="1")return `<td class="lead">started</td>`;
+        return `<td class="zero">—</td>`;
+      }).join("")+"</tr>").join("");
+  }
+  if(!html.includes("grouphead"))
+    html+=`<tr><td class="empty" colspan="${A.length+1}">${
+      state.qf==="todo"&&!state.q?"Every quest is finished — nothing left.":
+      `No quests match “${searchEl.value}”.`}</td></tr>`;
+  bodyEl.innerHTML=html;
 }
 function renderStart(A){
   const S0=SNAPSHOTS[0].players;
@@ -640,12 +706,7 @@ function renderClog(A){
       ghtml+=`<tr class="cathead"><td class="name">${cname}</td>`+
         per.map((m,i)=>{
           let kc="";
-          if(CLOG_KC_SPLIT[slug]){
-            const parts=CLOG_KC_SPLIT[slug].map(([lab,act])=>
-              [lab,DATA[A[i].key].activities[act]||0]);
-            if(parts.some(p=>p[1]>0))
-              kc=`<span class="kc">${parts.map(p=>fmt(p[1])+" "+p[0]).join(" · ")}</span>`;
-          }else if(CLOG_KC[slug]){
+          if(CLOG_KC[slug]){
             const s=CLOG_KC[slug].reduce((t,n)=>t+(DATA[A[i].key].activities[n]||0),0);
             if(s>0)kc=`<span class="kc">${fmt(s)} kc</span>`;
           }
@@ -671,6 +732,8 @@ function render(){
   tabsEl.querySelectorAll("button").forEach(b=>b.classList.toggle("on",b.dataset.tab===state.tab));
   modeEl.hidden=state.tab!=="skills";
   zeroEl.hidden=state.tab!=="bosses"&&state.tab!=="activities"&&state.tab!=="clog";
+  questEl.hidden=state.tab!=="quests";
+  questEl.querySelectorAll("button").forEach(b=>b.classList.toggle("on",b.dataset.q===state.qf));
   zeroEl.querySelectorAll("button").forEach(b=>b.classList.toggle("on",b.dataset.z===(state.hz==="all"?"all":"hide")));
   rangeWrap.hidden=state.tab!=="progress"||SNAPSHOTS.length<2;
   if(!rangeWrap.hidden)

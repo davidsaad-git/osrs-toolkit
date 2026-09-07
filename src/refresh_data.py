@@ -37,11 +37,28 @@ def fetch_player(name):
                                      for i in rec[:15]]
         except Exception:
             p["temple"]["recent"] = []   # nothing unlocked since initial sync yet
+
         print(f"  {name}: hiscores OK, collection log OK "
               f"({t['total_collections_finished']}/{t['total_collections_available']} slots, "
               f"{len(p['temple']['recent'])} recent unlocks)")
     except Exception as e:
         print(f"  {name}: hiscores OK, collection log not synced ({e})")
+    # Quests come from RuneProfile (nothing else publishes them).
+    try:
+        rp = get_json(f"https://www.runeprofile.com/api/profiles/{q}")
+        quests = rp.get("quests") or []
+        if not quests:
+            raise ValueError("no quest data")
+        p["quests"] = {
+            "qp": sum(x["points"] for x in quests if x["state"] == 2),
+            "synced": (rp.get("updatedAt") or "")[:10],
+            "_raw": {x["name"]: [x["state"], x["type"], x["points"]] for x in quests},
+        }
+        done = sum(1 for x in quests if x["state"] == 2)
+        print(f"    quests: {done}/{len(quests)} done, {p['quests']['qp']} QP "
+              f"(RuneProfile, synced {p['quests']['synced']})")
+    except Exception:
+        print("    quests: not on RuneProfile")
     return p
 
 def fetch_categories():
@@ -51,6 +68,30 @@ def fetch_categories():
     io.open(os.path.join(HERE, "clog_categories.json"), "w", encoding="utf-8").write(
         json.dumps(meta, separators=(",", ":")))
     print(f"  categories: {sum(len(v) for v in meta.values())} across {len(meta)} groups")
+
+def pack_quests(players):
+    """Quest names/types/points live once in quests_meta.json (append-only so old
+    snapshots stay aligned); each player keeps only a state string indexed by it."""
+    path = os.path.join(HERE, "quests_meta.json")
+    try:
+        meta = json.load(io.open(path, encoding="utf-8"))
+    except Exception:
+        meta = []
+    known = {m["n"] for m in meta}
+    for p in players.values():
+        for qname, (_, qtype, qpts) in (p.get("quests") or {}).get("_raw", {}).items():
+            if qname not in known:
+                meta.append({"n": qname, "t": qtype, "p": qpts})
+                known.add(qname)
+    io.open(path, "w", encoding="utf-8").write(json.dumps(meta, separators=(",", ":")))
+    for p in players.values():
+        q = p.get("quests")
+        if not q:
+            continue
+        raw = q.pop("_raw")
+        q["state"] = "".join(str(raw.get(m["n"], [0])[0]) for m in meta)
+    if meta:
+        print(f"  quests: {len(meta)} known quests/miniquests")
 
 def main():
     fetch_categories()
@@ -63,6 +104,7 @@ def main():
     }
     for name in PLAYERS:
         snap["players"][name] = fetch_player(name)
+    pack_quests(snap["players"])
     if snaps and snaps[-1]["date"] == snap["date"]:
         print("replacing existing snapshot for", snap["date"])
         snaps[-1] = snap

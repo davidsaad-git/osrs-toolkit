@@ -55,6 +55,9 @@ def extract(path):
     if "__CLOGCATS__" in js:
         cats = io.open(os.path.join(HERE, "clog_categories.json"), encoding="utf-8").read()
         js = js.replace("__CLOGCATS__", cats)
+    if "__QUESTS__" in js:
+        qm = io.open(os.path.join(HERE, "quests_meta.json"), encoding="utf-8").read()
+        js = js.replace("__QUESTS__", qm)
     return style, js, body.strip()
 
 SHELL_CSS = """
