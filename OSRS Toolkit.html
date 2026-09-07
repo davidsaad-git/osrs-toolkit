@@ -833,6 +833,12 @@ const CLOG_KC={
  elite_treasure_trails:["Clue Scrolls (elite)"],master_treasure_trails:["Clue Scrolls (master)"],
  mimic:["Mimic"],guardians_of_the_rift:["Rifts closed"],
 };
+// Raid pages show per-mode KCs. (Entry modes aren't tracked on the hiscores.)
+const CLOG_KC_SPLIT={
+ chambers_of_xeric:[["norm","Chambers of Xeric"],["cm","Chambers of Xeric: Challenge Mode"]],
+ theatre_of_blood:[["norm","Theatre of Blood"],["hm","Theatre of Blood: Hard Mode"]],
+ tombs_of_amascut:[["norm","Tombs of Amascut"],["exp","Tombs of Amascut: Expert Mode"]],
+};
 const LATEST=SNAPSHOTS[SNAPSHOTS.length-1], DATA=LATEST.players;
 document.getElementById("snapdate").textContent=LATEST.label;
 
@@ -1230,7 +1236,12 @@ function renderClog(A){
       ghtml+=`<tr class="cathead"><td class="name">${cname}</td>`+
         per.map((m,i)=>{
           let kc="";
-          if(CLOG_KC[slug]){
+          if(CLOG_KC_SPLIT[slug]){
+            const parts=CLOG_KC_SPLIT[slug].map(([lab,act])=>
+              [lab,DATA[A[i].key].activities[act]||0]);
+            if(parts.some(p=>p[1]>0))
+              kc=`<span class="kc">${parts.map(p=>fmt(p[1])+" "+p[0]).join(" · ")}</span>`;
+          }else if(CLOG_KC[slug]){
             const s=CLOG_KC[slug].reduce((t,n)=>t+(DATA[A[i].key].activities[n]||0),0);
             if(s>0)kc=`<span class="kc">${fmt(s)} kc</span>`;
           }
