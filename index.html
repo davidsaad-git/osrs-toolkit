@@ -485,7 +485,8 @@ nav button.dim:hover{color:var(--muted)}
 <div class="wrap">
 <header>
   <h1>Quit Smoking <span class="sub">· Group Highscores</span></h1>
-  <div class="snapdate">snapshot <b id="snapdate"></b> · official OSRS hiscores</div>
+  <div class="snapdate">snapshot <b id="snapdate"></b> · official OSRS hiscores
+    · <b id="nextref" style="color:var(--gold)"></b></div>
 </header>
 
 <div class="cards" id="cards"></div>
@@ -1271,6 +1272,27 @@ function render(){
   renderTable();
 }
 render();
+
+// Live countdown to the next scheduled auto-refresh (GitHub cron: every 6h at :23 UTC).
+const REF_HOURS=[0,6,12,18],REF_MIN=23;
+function nextRefresh(){
+  const now=new Date();
+  for(let add=0;add<2;add++)
+    for(const h of REF_HOURS){
+      const t=new Date(Date.UTC(now.getUTCFullYear(),now.getUTCMonth(),
+        now.getUTCDate()+add,h,REF_MIN,0));
+      if(t>now)return t;
+    }
+}
+function tickRefresh(){
+  const el=document.getElementById("nextref");if(!el)return;
+  const now=Date.now(),next=nextRefresh().getTime(),prev=next-6*3600*1000;
+  if(now-prev<8*60*1000){el.textContent="auto-update running — reload in a few minutes";return;}
+  let s=Math.floor((next-now)/1000);
+  const h=Math.floor(s/3600),m=Math.floor(s%3600/60),sec=s%60;
+  el.textContent="next auto-update in "+(h?`${h}h ${m}m`:m?`${m}m ${sec}s`:`${sec}s`);
+}
+setInterval(tickRefresh,1000);tickRefresh();
 
 })();/* ---- oracle ---- */
 (function(){
