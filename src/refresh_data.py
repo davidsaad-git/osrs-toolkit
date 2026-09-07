@@ -18,7 +18,9 @@ def get_json(url, tries=4):
             with urllib.request.urlopen(req, timeout=20) as r:
                 return json.loads(r.read().decode("utf-8"))
         except urllib.error.HTTPError as e:
-            if e.code == 404:      # genuinely absent (e.g. not on RuneProfile) — don't retry
+            # 400/401/404/410 mean "this will never work" (e.g. a player who isn't on
+            # RuneProfile) — retrying just stalls. 403/429/5xx are usually rate limiting.
+            if e.code in (400, 401, 404, 410):
                 raise
             if attempt == tries:
                 raise
